@@ -1,0 +1,73 @@
+- .env
+- .gitignore
+- API_README.md
+- app.js
+- config
+  - db.js
+- env.example
+- middlewares
+  - auth.middleware.js
+  - error.middleware.js
+- modules
+  - admin
+    - admin.controller.js
+    - admin.routes.js
+    - admin.service.js
+  - calendar
+    - calendar.controller.js
+    - calendar.model.js
+    - calendar.routes.js
+    - calendar.service.js
+    - calendar.validation.js
+  - client
+    - client.controller.js
+    - client.model.js
+    - client.routes.js
+    - client.service.js
+    - client.validation.js
+  - driver
+    - driver.controller.js
+    - driver.model.js
+    - driver.routes.js
+    - driver.service.js
+    - driver.validation.js
+  - expense
+    - expense.controller.js
+    - expense.model.js
+    - expense.routes.js
+    - expense.service.js
+    - expense.validation.js
+  - message
+    - message.controller.js
+    - message.model.js
+    - message.routes.js
+    - message.service.js
+    - message.validation.js
+  - payment
+    - payment.controller.js
+    - payment.model.js
+    - payment.routes.js
+    - payment.service.js
+    - payment.validation.js
+  - user
+    - otp.model.js
+    - user.controller.js
+    - user.model.js
+    - user.routes.js
+    - user.service.js
+    - user.validation.js
+  - vehicle
+    - vehicle.controller.js
+    - vehicle.model.js
+    - vehicle.routes.js
+    - vehicle.service.js
+    - vehicle.validation.js
+- package-lock.json
+- package.json
+- README.md
+- routes
+  - index.js
+- server.js
+- utils
+  - generateToken.js
+  - sendEmail.js

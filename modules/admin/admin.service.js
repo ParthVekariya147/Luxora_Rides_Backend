@@ -1,6 +1,70 @@
 const User = require('../user/user.model');
+const { generateToken } = require('../../utils/generateToken');
 
 class AdminService {
+  async adminLogin(email, password) {
+    // Find admin user by email
+    const admin = await User.findOne({ email: email.toLowerCase(), role: 'admin' });
+    if (!admin) {
+      throw new Error('Invalid email or password');
+    }
+
+    // Check if admin is active
+    if (!admin.isActive) {
+      throw new Error('Account is deactivated. Please contact support.');
+    }
+
+    // Verify password
+    const isPasswordValid = await admin.comparePassword(password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid email or password');
+    }
+
+    // Update last login
+    admin.lastLogin = new Date();
+    await admin.save();
+
+    // Generate token
+    const token = generateToken(admin._id, admin.email, admin.role);
+
+    return {
+      message: 'Admin login successful',
+      token,
+      user: admin.getProfile()
+    };
+  }
+
+  async adminRegister(firstName, lastName, email, password, phone) {
+    // Check if admin already exists with this email
+    const existingAdmin = await User.findOne({ email: email.toLowerCase() });
+    if (existingAdmin) {
+      throw new Error('Admin with this email already exists');
+    }
+
+    // Create new admin user
+    const admin = new User({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password,
+      phone,
+      role: 'admin',
+      isEmailVerified: true, // Admin emails are pre-verified
+      isActive: true
+    });
+
+    await admin.save();
+
+    // Generate token
+    const token = generateToken(admin._id, admin.email, admin.role);
+
+    return {
+      message: 'Admin registered successfully',
+      token,
+      user: admin.getProfile()
+    };
+  }
+
   async listUsers() {
     const users = await User.find({}).select('-password').sort({ createdAt: -1 });
     return users;

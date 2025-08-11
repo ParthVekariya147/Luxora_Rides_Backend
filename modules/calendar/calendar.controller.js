@@ -51,6 +51,15 @@ const listBookings = async (req, res) => {
   }
 };
 
+const listPendingBookings = async (req, res) => {
+  try {
+    const data = await calendarService.listPendingBookings(req.query);
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Overview and exports
 const getOverview = async (req, res) => {
   try {
@@ -101,6 +110,7 @@ module.exports = {
   deleteBooking,
   getBooking,
   listBookings,
+  listPendingBookings,
   getOverview,
   exportSummary,
   updateRentStatus,

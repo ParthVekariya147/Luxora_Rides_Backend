@@ -50,12 +50,22 @@ const listDrivers = async (req, res) => {
   }
 };
 
+const getDriverStats = async (req, res) => {
+  try {
+    const stats = await driverService.getDriverStats();
+    return res.status(200).json({ success: true, data: stats });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   addDriver,
   updateDriver,
   deleteDriver,
   getDriver,
-  listDrivers
+  listDrivers,
+  getDriverStats
 };
 
 

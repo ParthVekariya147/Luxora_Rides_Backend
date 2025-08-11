@@ -7,9 +7,15 @@ const {
   activateUser,
   deactivateUser,
   deleteUser,
-  getOverviewStats
+  getOverviewStats,
+  adminLogin,
+  adminRegister
 } = require('./admin.controller');
 const { authMiddleware, adminMiddleware } = require('../../middlewares/auth.middleware');
+
+// Admin authentication routes (no middleware required)
+router.post('/auth/login', adminLogin);
+router.post('/auth/register', adminRegister);
 
 // All admin routes require authentication and admin role
 router.use(authMiddleware, adminMiddleware);

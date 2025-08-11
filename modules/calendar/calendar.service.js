@@ -121,6 +121,39 @@ class CalendarService {
     return docs;
   }
 
+  async listPendingBookings(query) {
+    const { by = 'rent', start, end, page = 1, limit = 50 } = query;
+    const filter = {};
+    if (start && end) {
+      filter.$or = [
+        { start: { $gte: new Date(start), $lte: new Date(end) } },
+        { end: { $gte: new Date(start), $lte: new Date(end) } }
+      ];
+    }
+
+    const pendingConditions = [];
+    if (by === 'rent' || by === 'both') pendingConditions.push({ rentStatus: { $ne: 'paid' } });
+    if (by === 'status' || by === 'both') pendingConditions.push({ status: 'scheduled' });
+    if (pendingConditions.length === 0) pendingConditions.push({ rentStatus: { $ne: 'paid' } });
+
+    if (filter.$or) {
+      filter.$and = [{ $or: filter.$or }, { $or: pendingConditions }];
+      delete filter.$or;
+    } else {
+      filter.$or = pendingConditions;
+    }
+
+    const docs = await Booking.find(filter)
+      .populate('client')
+      .populate('driver')
+      .populate('vehicleId')
+      .sort({ start: 1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
+    const total = await Booking.countDocuments(filter);
+    return { items: docs, total, page: Number(page), limit: Number(limit) };
+  }
+
   // Assignments
   async assignDriver(bookingId, driverId) {
     const booking = await Booking.findById(bookingId);
@@ -128,7 +161,6 @@ class CalendarService {
     const driver = await Driver.findById(driverId);
     if (!driver) throw new Error('Driver not found');
 
-    // conflict check
     const overlap = await Booking.exists({
       _id: { $ne: bookingId },
       driver: driverId,
@@ -212,4 +244,4 @@ class CalendarService {
 
 module.exports = new CalendarService();
 
-
+ 

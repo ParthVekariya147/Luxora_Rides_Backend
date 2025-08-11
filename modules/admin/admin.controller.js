@@ -1,5 +1,25 @@
 const adminService = require('./admin.service');
 
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await adminService.adminLogin(email, password);
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const adminRegister = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, phone } = req.body;
+    const result = await adminService.adminRegister(firstName, lastName, email, password, phone);
+    return res.status(201).json({ success: true, ...result });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 const listUsers = async (req, res) => {
   try {
     const users = await adminService.listUsers();
@@ -65,6 +85,8 @@ const getOverviewStats = async (req, res) => {
 };
 
 module.exports = {
+  adminLogin,
+  adminRegister,
   listUsers,
   getUserById,
   updateUserRole,

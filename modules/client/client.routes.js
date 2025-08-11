@@ -12,5 +12,3 @@ router.put('/:clientId', updateClient);
 router.delete('/:clientId', deleteClient);
 
 module.exports = router;
-
-

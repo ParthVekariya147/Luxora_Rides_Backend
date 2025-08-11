@@ -9,6 +9,7 @@ const expenseRoutes = require('../modules/expense/expense.routes');
 const messageRoutes = require('../modules/message/message.routes');
 const paymentRoutes = require('../modules/payment/payment.routes');
 const vehicleRoutes = require('../modules/vehicle/vehicle.routes');
+const authRoutes = require('./auth');
 
 // Health check route
 router.get('/health', (req, res) => {
@@ -20,6 +21,7 @@ router.get('/health', (req, res) => {
 });
 
 // API routes
+router.use('/api/auth', authRoutes);
 router.use('/api/users', userRoutes);
 router.use('/api/admin', adminRoutes);
 router.use('/api/clients', clientRoutes);

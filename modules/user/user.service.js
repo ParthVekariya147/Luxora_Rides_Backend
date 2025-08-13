@@ -227,25 +227,43 @@ class UserService {
         throw new Error('Invalid or expired OTP');
       }
 
-      return { message: 'OTP verified successfully' };
+      // Mark OTP as verified
+      await otpRecord.markAsVerified();
+
+      // Generate a reset token (simple hash of email + timestamp)
+      const resetToken = Buffer.from(`${email.toLowerCase()}-${Date.now()}`).toString('base64');
+
+      return { 
+        message: 'OTP verified successfully',
+        resetToken 
+      };
     } catch (error) {
       throw error;
     }
   }
 
-  // Reset password with OTP
-  async resetPassword(email, otp, newPassword) {
+  // Reset password with reset token
+  async resetPassword(resetToken, newPassword) {
     try {
+      // Decode reset token to get email
+      const decoded = Buffer.from(resetToken, 'base64').toString();
+      const [email] = decoded.split('-');
+      
+      if (!email) {
+        throw new Error('Invalid reset token');
+      }
+
+      // Find verified OTP for this email
       const otpRecord = await OTP.findOne({
         email: email.toLowerCase(),
-        otp,
         type: 'password_reset',
+        isVerified: true,
         isUsed: false,
         expiresAt: { $gt: new Date() }
       });
 
       if (!otpRecord) {
-        throw new Error('Invalid or expired OTP');
+        throw new Error('No verified OTP found. Please verify your OTP first.');
       }
 
       const user = await User.findOne({ email: email.toLowerCase() });
@@ -281,7 +299,7 @@ class UserService {
         throw new Error('Account is deactivated. Please contact support.');
       }
 
-      // Delete existing unused OTPs
+      // Delete existing unused OTPs (both verified and unverified)
       await OTP.deleteMany({
         email: email.toLowerCase(),
         type: 'password_reset',

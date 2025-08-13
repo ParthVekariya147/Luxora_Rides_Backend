@@ -20,6 +20,10 @@ const otpSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   expiresAt: {
     type: Date,
     required: true
@@ -35,6 +39,12 @@ otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // Auto-delete exp
 // Method to check if OTP is valid
 otpSchema.methods.isValid = function() {
   return !this.isUsed && new Date() < this.expiresAt;
+};
+
+// Method to mark OTP as verified
+otpSchema.methods.markAsVerified = function() {
+  this.isVerified = true;
+  return this.save();
 };
 
 // Method to mark OTP as used

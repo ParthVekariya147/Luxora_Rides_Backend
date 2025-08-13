@@ -12,6 +12,8 @@ const base = {
   mileage: Joi.number().min(0),
   category: Joi.string().valid('economy', 'compact', 'midsize', 'fullsize', 'luxury', 'suv', 'van', 'truck'),
   status: Joi.string().valid('available', 'maintenance', 'rented', 'out_of_service'),
+    fuelType: Joi.string().valid('gasoline', 'diesel', 'electric', 'hybrid', 'lpg'),
+transmission: Joi.string().valid('automatic', 'manual'),
   dailyRate: Joi.number().min(0),
   weeklyRate: Joi.number().min(0),
   monthlyRate: Joi.number().min(0),
@@ -34,6 +36,9 @@ const createVehicleValidation = Joi.object({
   color: base.color.required(),
   seats: base.seats.required(),
   mileage: base.mileage.required(),
+  fuelType: base.fuelType.optional(),
+    transmission: base.transmission.optional(),
+
   category: base.category.optional(),
   status: base.status.optional(),
   dailyRate: base.dailyRate.required(),

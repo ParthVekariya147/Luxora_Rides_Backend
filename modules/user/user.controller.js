@@ -229,11 +229,14 @@ const verifyOTP = async (req, res) => {
     }
 
     const { email, otp } = req.body;
-    await userService.verifyOTP(email, otp);
+    const result = await userService.verifyOTP(email, otp);
     
     res.status(200).json({
       success: true,
-      message: 'OTP verified successfully'
+      message: 'OTP verified successfully',
+      data: {
+        resetToken: result.resetToken
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -243,7 +246,7 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-// Reset password with OTP
+// Reset password with reset token
 const resetPassword = async (req, res) => {
   try {
     // Validate request body
@@ -255,8 +258,8 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    const { email, otp, newPassword } = req.body;
-    await userService.resetPassword(email, otp, newPassword);
+    const { resetToken, newPassword } = req.body;
+    await userService.resetPassword(resetToken, newPassword);
     
     res.status(200).json({
       success: true,

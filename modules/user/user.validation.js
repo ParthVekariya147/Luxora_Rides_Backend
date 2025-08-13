@@ -109,21 +109,10 @@ const forgotPasswordValidation = Joi.object({
 });
 
 const resetPasswordValidation = Joi.object({
-  email: Joi.string()
-    .email()
+  resetToken: Joi.string()
     .required()
     .messages({
-      'string.email': 'Please enter a valid email address',
-      'any.required': 'Email is required'
-    }),
-  otp: Joi.string()
-    .length(6)
-    .pattern(/^[0-9]+$/)
-    .required()
-    .messages({
-      'string.length': 'OTP must be exactly 6 digits',
-      'string.pattern.base': 'OTP must contain only numbers',
-      'any.required': 'OTP is required'
+      'any.required': 'Reset token is required'
     }),
   newPassword: Joi.string()
     .min(6)
@@ -133,6 +122,13 @@ const resetPasswordValidation = Joi.object({
       'string.min': 'New password must be at least 6 characters long',
       'string.max': 'New password cannot exceed 128 characters',
       'any.required': 'New password is required'
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({
+      'any.only': 'Passwords do not match',
+      'any.required': 'Confirm password is required'
     })
 });
 

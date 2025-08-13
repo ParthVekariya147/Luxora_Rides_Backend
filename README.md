@@ -326,11 +326,14 @@ luxora_backend/
   ```json
   {
     "success": true,
-    "message": "OTP verified successfully"
+    "message": "OTP verified successfully",
+    "data": {
+      "resetToken": "base64_encoded_reset_token"
+    }
   }
   ```
 
-#### 8. Reset Password with OTP
+#### 8. Reset Password with Reset Token
 - **POST** `/api/users/reset-password`
 - **Headers:** 
   ```
@@ -339,9 +342,9 @@ luxora_backend/
 - **Body:**
   ```json
   {
-    "email": "john.doe@example.com",
-    "otp": "123456",
-    "newPassword": "newpassword123"
+    "resetToken": "base64_encoded_reset_token",
+    "newPassword": "newpassword123",
+    "confirmPassword": "newpassword123"
   }
   ```
 - **Response:**

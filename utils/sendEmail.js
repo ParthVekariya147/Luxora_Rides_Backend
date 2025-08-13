@@ -85,7 +85,7 @@ const sendOTPEmail = async (email, otp, firstName = "User") => {
   const mailOptions = {
     from: process.env.GMAIL_USER || "your-email@gmail.com",
     to: email,
-    subject: "Password Reset OTP - Luxora Backend",
+    subject: "Password Reset OTP - Luxora Rides",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -139,7 +139,7 @@ const sendPasswordResetSuccessEmail = async (email, firstName = "User") => {
   const mailOptions = {
     from: process.env.GMAIL_USER || "your-email@gmail.com",
     to: email,
-    subject: "Password Reset Successful - Luxora Backend",
+    subject: "Password Reset Successful - Luxora Rides",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">

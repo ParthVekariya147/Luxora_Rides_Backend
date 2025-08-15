@@ -1,0 +1,388 @@
+{
+  "car_details": [
+    {
+      "car_name": "BMW XM",
+      "brand": "BMW",
+      "year_model": 2025,
+      "price_per_day": 32000.00,
+      "currency": "INR",
+      "ratings": 145,
+      "description": "The 2025 BMW XM is a high-performance plug-in hybrid SUV combining M division engineering with electrification. It features a 4.4L TwinPower Turbo V8 paired with an electric motor, producing a combined 653 hp and 800 Nm of torque. The XM offers a bold design, a luxurious cabin with M Lounge seating, and advanced tech including curved displays and BMW iDrive 8.5.",
+      "image_url": "https://your-domain.com/images/bmw_xm_2025.png",
+      "technical_specifications": {
+        "engine_type": "Plug-in Hybrid",
+        "engine_details": "4.4L TwinPower Turbo V8 + Electric Motor",
+        "combined_horsepower": 653,
+        "combined_torque_nm": 800,
+        "transmission": "8-Speed M Steptronic",
+        "top_speed_kmh": 250,
+        "acceleration_0_100_kmh_seconds": 4.3,
+        "drivetrain": "All-wheel drive (AWD)",
+        "fuel_economy_l_per_100km": 1.6,
+        "electric_range_km": 88
+      },
+      "dimensions": {
+        "length_mm": 5110,
+        "width_mm": 2005,
+        "height_mm": 1755,
+        "seating_capacity": 5,
+        "cargo_space_liters": 527
+      },
+      "features": {
+        "infotainment": "BMW iDrive 8.5 with GPS Navigation",
+        "seating": "M Lounge Seating, Leather Upholstery",
+        "sunroof": "Panoramic",
+        "ambient_lighting": true,
+        "head_up_display": true,
+        "color_options": [
+          "Sophisto Grey Metallic",
+          "Black Sapphire Metallic",
+          "Marina Bay Blue Metallic"
+        ],
+        "headlights": "Adaptive LED"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 8,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": true
+        },
+        "ncap_rating": "Not yet rated"
+      },
+      "rental_details": {
+        "security_deposit_inr": 50000,
+        "kilometers_included_per_day": 200,
+        "extra_km_charge_per_unit_inr": 25,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pickup_location": "Mumbai Airport"
+      }
+    },
+    {
+      "car_name": "Mercedes-Benz S-Class",
+      "brand": "Mercedes",
+      "year_model": 2024,
+      "price_per_day": 45000.00,
+      "currency": "INR",
+      "ratings": 160,
+      "description": "The Mercedes-Benz S-Class represents the pinnacle of luxury automotive engineering. The 2024 model features cutting-edge technology, unparalleled comfort, and sophisticated design. With its advanced MBUX infotainment system, ambient lighting, and executive rear seating, the S-Class offers a truly premium driving experience.",
+      "image_url": "https://your-domain.com/images/mercedes_s_class_2024.png",
+      "technical_specifications": {
+        "engine_type": "Petrol",
+        "engine_details": "3.0L Inline-6 Turbo",
+        "combined_horsepower": 367,
+        "combined_torque_nm": 500,
+        "transmission": "9-Speed Automatic",
+        "top_speed_kmh": 250,
+        "acceleration_0_100_kmh_seconds": 5.1,
+        "drivetrain": "Rear-wheel drive (RWD)",
+        "fuel_economy_l_per_100km": 8.5,
+        "electric_range_km": null
+      },
+      "dimensions": {
+        "length_mm": 5289,
+        "width_mm": 1921,
+        "height_mm": 1503,
+        "seating_capacity": 5,
+        "cargo_space_liters": 550
+      },
+      "features": {
+        "infotainment": "MBUX with 12.8-inch OLED Display",
+        "seating": "Executive Rear Seating, Nappa Leather",
+        "sunroof": "Panoramic",
+        "ambient_lighting": true,
+        "head_up_display": true,
+        "color_options": [
+          "Obsidian Black Metallic",
+          "Selenite Grey Metallic",
+          "Polar White"
+        ],
+        "headlights": "Digital Light LED"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 9,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": true
+        },
+        "ncap_rating": "5 Stars"
+      },
+      "rental_details": {
+        "security_deposit_inr": 75000,
+        "kilometers_included_per_day": 250,
+        "extra_km_charge_per_unit_inr": 30,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Delhi",
+        "state": "Delhi",
+        "pickup_location": "Delhi Airport"
+      }
+    },
+    {
+      "car_name": "Audi RS e-tron GT",
+      "brand": "Audi",
+      "year_model": 2024,
+      "price_per_day": 38000.00,
+      "currency": "INR",
+      "ratings": 155,
+      "description": "The Audi RS e-tron GT is a high-performance electric vehicle that combines stunning design with incredible performance. With its dual electric motors producing 637 hp and 830 Nm of torque, it accelerates from 0-100 km/h in just 3.3 seconds. The futuristic interior features sustainable materials and cutting-edge technology.",
+      "image_url": "https://your-domain.com/images/audi_rs_etron_gt_2024.png",
+      "technical_specifications": {
+        "engine_type": "Electric",
+        "engine_details": "Dual Electric Motors",
+        "combined_horsepower": 637,
+        "combined_torque_nm": 830,
+        "transmission": "2-Speed Automatic",
+        "top_speed_kmh": 250,
+        "acceleration_0_100_kmh_seconds": 3.3,
+        "drivetrain": "All-wheel drive (AWD)",
+        "fuel_economy_l_per_100km": 0,
+        "electric_range_km": 472
+      },
+      "dimensions": {
+        "length_mm": 4986,
+        "width_mm": 1964,
+        "height_mm": 1413,
+        "seating_capacity": 4,
+        "cargo_space_liters": 350
+      },
+      "features": {
+        "infotainment": "Audi MMI Navigation plus",
+        "seating": "Sport Seats, Valcona Leather",
+        "sunroof": "Fixed Glass",
+        "ambient_lighting": true,
+        "head_up_display": true,
+        "color_options": [
+          "Daytona Grey Metallic",
+          "Glacier White Metallic",
+          "Turbine Blue Metallic"
+        ],
+        "headlights": "Matrix LED"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 6,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": true
+        },
+        "ncap_rating": "5 Stars"
+      },
+      "rental_details": {
+        "security_deposit_inr": 60000,
+        "kilometers_included_per_day": 300,
+        "extra_km_charge_per_unit_inr": 20,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "pickup_location": "Bangalore Airport"
+      }
+    },
+    {
+      "car_name": "Range Rover Sport",
+      "brand": "Land Rover",
+      "year_model": 2024,
+      "price_per_day": 42000.00,
+      "currency": "INR",
+      "ratings": 140,
+      "description": "The Range Rover Sport combines luxury with exceptional off-road capability. The 2024 model features a refined design, advanced terrain response system, and a sophisticated interior. With its powerful engine and adaptive dynamics, it delivers both comfort and performance in any environment.",
+      "image_url": "https://your-domain.com/images/range_rover_sport_2024.png",
+      "technical_specifications": {
+        "engine_type": "Petrol",
+        "engine_details": "3.0L Inline-6 Turbo",
+        "combined_horsepower": 400,
+        "combined_torque_nm": 550,
+        "transmission": "8-Speed Automatic",
+        "top_speed_kmh": 225,
+        "acceleration_0_100_kmh_seconds": 5.7,
+        "drivetrain": "All-wheel drive (AWD)",
+        "fuel_economy_l_per_100km": 10.2,
+        "electric_range_km": null
+      },
+      "dimensions": {
+        "length_mm": 4946,
+        "width_mm": 2047,
+        "height_mm": 1820,
+        "seating_capacity": 5,
+        "cargo_space_liters": 835
+      },
+      "features": {
+        "infotainment": "Pivi Pro with 13.1-inch Touchscreen",
+        "seating": "Windsor Leather, 14-way Power Seats",
+        "sunroof": "Panoramic",
+        "ambient_lighting": true,
+        "head_up_display": true,
+        "color_options": [
+          "Santorini Black Metallic",
+          "Carpathian Grey Metallic",
+          "Pangea Green Metallic"
+        ],
+        "headlights": "Matrix LED"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 7,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": true
+        },
+        "ncap_rating": "5 Stars"
+      },
+      "rental_details": {
+        "security_deposit_inr": 70000,
+        "kilometers_included_per_day": 200,
+        "extra_km_charge_per_unit_inr": 35,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "pickup_location": "Chennai Airport"
+      }
+    },
+    {
+      "car_name": "Porsche 911 Carrera",
+      "brand": "Porsche",
+      "year_model": 2024,
+      "price_per_day": 55000.00,
+      "currency": "INR",
+      "ratings": 175,
+      "description": "The Porsche 911 Carrera is the iconic sports car that defines driving excellence. The 2024 model features a refined design, enhanced performance, and cutting-edge technology. With its rear-engine layout and precise handling, it delivers an unmatched driving experience on both road and track.",
+      "image_url": "https://your-domain.com/images/porsche_911_carrera_2024.png",
+      "technical_specifications": {
+        "engine_type": "Petrol",
+        "engine_details": "3.0L Twin-Turbo Flat-6",
+        "combined_horsepower": 385,
+        "combined_torque_nm": 450,
+        "transmission": "8-Speed PDK",
+        "top_speed_kmh": 308,
+        "acceleration_0_100_kmh_seconds": 4.2,
+        "drivetrain": "Rear-wheel drive (RWD)",
+        "fuel_economy_l_per_100km": 9.8,
+        "electric_range_km": null
+      },
+      "dimensions": {
+        "length_mm": 4519,
+        "width_mm": 1852,
+        "height_mm": 1297,
+        "seating_capacity": 4,
+        "cargo_space_liters": 132
+      },
+      "features": {
+        "infotainment": "Porsche Communication Management",
+        "seating": "Sport Seats Plus, Leather",
+        "sunroof": "Optional",
+        "ambient_lighting": true,
+        "head_up_display": true,
+        "color_options": [
+          "GT Silver Metallic",
+          "Black",
+          "Guards Red"
+        ],
+        "headlights": "LED Matrix"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 6,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": true
+        },
+        "ncap_rating": "5 Stars"
+      },
+      "rental_details": {
+        "security_deposit_inr": 100000,
+        "kilometers_included_per_day": 150,
+        "extra_km_charge_per_unit_inr": 50,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pickup_location": "Hyderabad Airport"
+      }
+    },
+    {
+      "car_name": "Toyota Camry Hybrid",
+      "brand": "Toyota",
+      "year_model": 2024,
+      "price_per_day": 18000.00,
+      "currency": "INR",
+      "ratings": 120,
+      "description": "The Toyota Camry Hybrid offers a perfect blend of comfort, efficiency, and reliability. The 2024 model features a refined hybrid powertrain, spacious interior, and advanced safety features. With its excellent fuel economy and smooth ride, it's ideal for both city and highway driving.",
+      "image_url": "https://your-domain.com/images/toyota_camry_hybrid_2024.png",
+      "technical_specifications": {
+        "engine_type": "Hybrid",
+        "engine_details": "2.5L 4-Cylinder + Electric Motor",
+        "combined_horsepower": 208,
+        "combined_torque_nm": 163,
+        "transmission": "CVT",
+        "top_speed_kmh": 180,
+        "acceleration_0_100_kmh_seconds": 8.5,
+        "drivetrain": "Front-wheel drive (FWD)",
+        "fuel_economy_l_per_100km": 4.5,
+        "electric_range_km": 2
+      },
+      "dimensions": {
+        "length_mm": 4885,
+        "width_mm": 1840,
+        "height_mm": 1455,
+        "seating_capacity": 5,
+        "cargo_space_liters": 493
+      },
+      "features": {
+        "infotainment": "Toyota Entune 3.0",
+        "seating": "SofTex-trimmed Seats",
+        "sunroof": "Optional",
+        "ambient_lighting": false,
+        "head_up_display": true,
+        "color_options": [
+          "Midnight Black Metallic",
+          "Celestial Silver Metallic",
+          "Ruby Flare Pearl"
+        ],
+        "headlights": "LED"
+      },
+      "safety_and_assistance": {
+        "airbags_count": 8,
+        "driver_assistance_systems": {
+          "adaptive_cruise_control": true,
+          "lane_keep_assist": true,
+          "blind_spot_monitoring": true,
+          "parking_assistant_plus": false
+        },
+        "ncap_rating": "5 Stars"
+      },
+      "rental_details": {
+        "security_deposit_inr": 30000,
+        "kilometers_included_per_day": 250,
+        "extra_km_charge_per_unit_inr": 15,
+        "insurance_included": true
+      },
+      "status": "available",
+      "location": {
+        "city": "Pune",
+        "state": "Maharashtra",
+        "pickup_location": "Pune Airport"
+      }
+    }
+  ]
+}

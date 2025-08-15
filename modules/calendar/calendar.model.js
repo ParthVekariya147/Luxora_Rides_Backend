@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bookingSchema = new mongoose.Schema(
+const calendarEventSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
@@ -20,10 +20,10 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-bookingSchema.index({ start: 1, end: 1 });
-bookingSchema.index({ driver: 1, start: 1, end: 1 });
-bookingSchema.index({ vehicleId: 1, start: 1, end: 1 });
+calendarEventSchema.index({ start: 1, end: 1 });
+calendarEventSchema.index({ driver: 1, start: 1, end: 1 });
+calendarEventSchema.index({ vehicleId: 1, start: 1, end: 1 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.model('CalendarEvent', calendarEventSchema);
 
 

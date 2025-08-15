@@ -1,9 +1,9 @@
 const Payment = require('./payment.model');
-const Booking = require('../calendar/calendar.model');
+const CalendarEvent = require('../calendar/calendar.model');
 
 class PaymentService {
   async createPayment(data) {
-    const booking = await Booking.findById(data.booking);
+    const booking = await CalendarEvent.findById(data.booking);
     if (!booking) throw new Error('Booking not found');
 
     const payment = await Payment.create(data);

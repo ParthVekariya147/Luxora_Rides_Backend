@@ -9,6 +9,9 @@ const expenseRoutes = require('../modules/expense/expense.routes');
 const messageRoutes = require('../modules/message/message.routes');
 const paymentRoutes = require('../modules/payment/payment.routes');
 const vehicleRoutes = require('../modules/vehicle/vehicle.routes');
+const carRoutes = require('../modules/car/car.routes');
+const contactRoutes = require('../modules/contact/contact.routes');
+const bookingRoutes = require('../modules/booking/booking.routes');
 const authRoutes = require('./auth');
 
 // Health check route
@@ -31,5 +34,8 @@ router.use('/api/expenses', expenseRoutes);
 router.use('/api/messages', messageRoutes);
 router.use('/api/payments', paymentRoutes);
 router.use('/api/vehicles', vehicleRoutes);
+router.use('/api', carRoutes);
+router.use('/api', contactRoutes);
+router.use('/api', bookingRoutes);
 
 module.exports = router;

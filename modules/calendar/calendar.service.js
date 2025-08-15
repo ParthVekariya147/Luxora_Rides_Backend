@@ -1,16 +1,16 @@
-const Booking = require('./calendar.model');
+const CalendarEvent = require('./calendar.model');
 const { Parser } = require('json2csv');
 const Driver = require('../driver/driver.model');
 const Vehicle = require('../vehicle/vehicle.model');
 
 class CalendarService {
   async createBooking(data) {
-    const booking = await Booking.create(data);
+    const booking = await CalendarEvent.create(data);
     return booking;
   }
 
   async updateBooking(id, data) {
-    const booking = await Booking.findById(id);
+    const booking = await CalendarEvent.findById(id);
     if (!booking) throw new Error('Booking not found');
     Object.assign(booking, data);
     await booking.save();
@@ -18,14 +18,14 @@ class CalendarService {
   }
 
   async deleteBooking(id) {
-    const booking = await Booking.findById(id);
+    const booking = await CalendarEvent.findById(id);
     if (!booking) throw new Error('Booking not found');
-    await Booking.deleteOne({ _id: id });
+    await CalendarEvent.deleteOne({ _id: id });
     return { message: 'Booking deleted successfully' };
   }
 
   async getBookingById(id) {
-    const booking = await Booking.findById(id)
+    const booking = await CalendarEvent.findById(id)
       .populate('client')
       .populate('driver')
       .populate('vehicleId');
@@ -47,14 +47,14 @@ class CalendarService {
     if (status) filter.status = status;
     if (rentStatus) filter.rentStatus = rentStatus;
 
-    const docs = await Booking.find(filter)
+    const docs = await CalendarEvent.find(filter)
       .populate('client')
       .populate('driver')
       .populate('vehicleId')
       .sort({ start: 1 })
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit));
-    const total = await Booking.countDocuments(filter);
+    const total = await CalendarEvent.countDocuments(filter);
     return { items: docs, total, page: Number(page), limit: Number(limit) };
   }
 
@@ -65,12 +65,12 @@ class CalendarService {
     ] };
 
     const [total, completed, inProgress, cancelled, scheduled, totalAmount] = await Promise.all([
-      Booking.countDocuments(filter),
-      Booking.countDocuments({ ...filter, status: 'completed' }),
-      Booking.countDocuments({ ...filter, status: 'in_progress' }),
-      Booking.countDocuments({ ...filter, status: 'cancelled' }),
-      Booking.countDocuments({ ...filter, status: 'scheduled' }),
-      Booking.aggregate([
+      CalendarEvent.countDocuments(filter),
+      CalendarEvent.countDocuments({ ...filter, status: 'completed' }),
+      CalendarEvent.countDocuments({ ...filter, status: 'in_progress' }),
+      CalendarEvent.countDocuments({ ...filter, status: 'cancelled' }),
+      CalendarEvent.countDocuments({ ...filter, status: 'scheduled' }),
+      CalendarEvent.aggregate([
         { $match: filter },
         { $group: { _id: null, sum: { $sum: '$amount' } } }
       ])
@@ -101,7 +101,7 @@ class CalendarService {
   async updateRentStatus(id, rentStatus) {
     const allowed = ['unpaid', 'partially_paid', 'paid'];
     if (!allowed.includes(rentStatus)) throw new Error('Invalid rent status');
-    const booking = await Booking.findById(id);
+    const booking = await CalendarEvent.findById(id);
     if (!booking) throw new Error('Booking not found');
     booking.rentStatus = rentStatus;
     await booking.save();
@@ -117,7 +117,7 @@ class CalendarService {
         { end: { $gte: new Date(start), $lte: new Date(end) } }
       ];
     }
-    const docs = await Booking.find(filter).select('start end rentStatus amount');
+    const docs = await CalendarEvent.find(filter).select('start end rentStatus amount');
     return docs;
   }
 
@@ -143,25 +143,25 @@ class CalendarService {
       filter.$or = pendingConditions;
     }
 
-    const docs = await Booking.find(filter)
+    const docs = await CalendarEvent.find(filter)
       .populate('client')
       .populate('driver')
       .populate('vehicleId')
       .sort({ start: 1 })
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit));
-    const total = await Booking.countDocuments(filter);
+    const total = await CalendarEvent.countDocuments(filter);
     return { items: docs, total, page: Number(page), limit: Number(limit) };
   }
 
   // Assignments
   async assignDriver(bookingId, driverId) {
-    const booking = await Booking.findById(bookingId);
+    const booking = await CalendarEvent.findById(bookingId);
     if (!booking) throw new Error('Booking not found');
     const driver = await Driver.findById(driverId);
     if (!driver) throw new Error('Driver not found');
 
-    const overlap = await Booking.exists({
+    const overlap = await CalendarEvent.exists({
       _id: { $ne: bookingId },
       driver: driverId,
       $or: [
@@ -178,7 +178,7 @@ class CalendarService {
   }
 
   async unassignDriver(bookingId) {
-    const booking = await Booking.findById(bookingId);
+    const booking = await CalendarEvent.findById(bookingId);
     if (!booking) throw new Error('Booking not found');
     booking.driver = undefined;
     await booking.save();
@@ -186,12 +186,12 @@ class CalendarService {
   }
 
   async assignVehicle(bookingId, vehicleId) {
-    const booking = await Booking.findById(bookingId);
+    const booking = await CalendarEvent.findById(bookingId);
     if (!booking) throw new Error('Booking not found');
     const vehicle = await Vehicle.findById(vehicleId);
     if (!vehicle) throw new Error('Vehicle not found');
 
-    const overlap = await Booking.exists({
+    const overlap = await CalendarEvent.exists({
       _id: { $ne: bookingId },
       vehicleId,
       $or: [
@@ -208,7 +208,7 @@ class CalendarService {
   }
 
   async unassignVehicle(bookingId) {
-    const booking = await Booking.findById(bookingId);
+    const booking = await CalendarEvent.findById(bookingId);
     if (!booking) throw new Error('Booking not found');
     booking.vehicleId = undefined;
     await booking.save();
@@ -216,7 +216,7 @@ class CalendarService {
   }
 
   async availableDrivers(start, end) {
-    const busy = await Booking.distinct('driver', {
+    const busy = await CalendarEvent.distinct('driver', {
       driver: { $ne: null },
       $or: [
         { start: { $lt: new Date(end), $gte: new Date(start) } },
@@ -229,7 +229,7 @@ class CalendarService {
   }
 
   async availableVehicles(start, end) {
-    const busy = await Booking.distinct('vehicleId', {
+    const busy = await CalendarEvent.distinct('vehicleId', {
       vehicleId: { $ne: null },
       $or: [
         { start: { $lt: new Date(end), $gte: new Date(start) } },

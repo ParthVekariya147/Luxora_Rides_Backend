@@ -1,29 +1,50 @@
-    const express = require('express');
+const express = require('express');
 const router = express.Router();
-const carController = require('./car.controller');
-const { authMiddleware } = require('../../middlewares/auth.middleware');
+const {
+  createCar,
+  getCarById,
+  updateCar,
+  deleteCar,
+  listCars,
+  getCarsByBrand,
+  getAvailableCars,
+  getCarsByPriceRange,
+  getCarsBySeatingCapacity,
+  updateCarStatus,
+  getCarStatistics,
+  searchCars,
+  bulkUpdateCars,
+  getFeaturedCars,
+  uploadCarImages,
+  getCarRecommendations
+} = require('./car.controller');
+const { authMiddleware, adminMiddleware } = require('../../middlewares/auth.middleware');
 
 // Public routes (no authentication required)
-router.get('/cars', carController.listCars);
-router.get('/cars/available', carController.getAvailableCars);
-router.get('/cars/featured', carController.getFeaturedCars);
-router.get('/cars/search', carController.searchCars);
-router.get('/cars/price-range', carController.getCarsByPriceRange);
-router.get('/cars/brand/:brand', carController.getCarsByBrand);
-router.get('/cars/seating/:capacity', carController.getCarsBySeatingCapacity);
-router.get('/cars/:carId', carController.getCarById);
-router.get('/cars/:carId/recommendations', carController.getCarRecommendations);
+router.get('/cars/available', getAvailableCars);
+router.get('/cars/featured', getFeaturedCars);
+router.get('/cars/brand/:brand', getCarsByBrand);
+router.get('/cars/seating/:capacity', getCarsBySeatingCapacity);
+router.get('/cars/search', searchCars);
+router.get('/cars/price-range', getCarsByPriceRange);
+router.get('/cars/:carId', getCarById);
+router.get('/cars/:carId/recommendations', getCarRecommendations);
 
 // Protected routes (authentication required)
 router.use(authMiddleware);
 
-// Admin/Manager routes
-router.post('/cars', carController.createCar);
-router.put('/cars/:carId', carController.updateCar);
-router.delete('/cars/:carId', carController.deleteCar);
-router.patch('/cars/:carId/status', carController.updateCarStatus);
-router.post('/cars/bulk-update', carController.bulkUpdateCars);
-router.post('/cars/:carId/images', carController.uploadCarImages);
-router.get('/cars/stats/statistics', carController.getCarStatistics);
+// User routes (authenticated users)
+router.get('/cars', listCars);
+router.get('/cars/stats/statistics', getCarStatistics);
+
+// Admin routes (admin authentication required)
+router.use(adminMiddleware);
+
+router.post('/cars', createCar);
+router.put('/cars/:carId', updateCar);
+router.delete('/cars/:carId', deleteCar);
+router.put('/cars/:carId/status', updateCarStatus);
+router.post('/cars/bulk-update', bulkUpdateCars);
+router.post('/cars/:carId/upload-images', uploadCarImages);
 
 module.exports = router;

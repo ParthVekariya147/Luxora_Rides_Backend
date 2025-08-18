@@ -8,7 +8,7 @@ const calendarEventSchema = new mongoose.Schema(
     end: { type: Date, required: true },
     client: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
     driver: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
-    vehicle: { type: String, trim: true },
+    vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' },
     vehicleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' },
     pickupLocation: { type: String, trim: true },
     dropoffLocation: { type: String, trim: true },

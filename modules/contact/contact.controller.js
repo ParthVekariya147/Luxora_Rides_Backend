@@ -11,48 +11,50 @@ const {
 
 class ContactController {
   // Create a new contact submission (public endpoint)
-  async createContact(req, res) {
-    try {
-      // Validate request body
-      const { error, value } = createContactValidation.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation error',
-          errors: error.details.map(detail => detail.message)
-        });
-      }
-
-      // Get user info from request
-      const userInfo = {
-        ip_address: req.ip || req.connection.remoteAddress,
-        user_agent: req.get('User-Agent'),
-        user_id: req.user ? req.user.id : null
-      };
-
-      const contact = await contactService.createContact(value, userInfo);
-
-      res.status(201).json({
-        success: true,
-        message: 'Contact form submitted successfully. We will get back to you soon!',
-        data: {
-          id: contact._id,
-          name: contact.name,
-          email: contact.email,
-          subject: contact.subject,
-          status: contact.status,
-          submitted_at: contact.createdAt
-        }
-      });
-    } catch (error) {
-      console.error('Error creating contact:', error);
-      res.status(500).json({
+async createContact(req, res) {
+  try {
+    // Validate request body
+    const { error, value } = createContactValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({
         success: false,
-        message: 'Failed to submit contact form',
-        error: error.message
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
       });
     }
+
+    // Get user info from request
+    const userInfo = {
+      ip_address: req.ip || req.connection.remoteAddress,
+      user_agent: req.get('User-Agent'),
+      user_id: req.user ? req.user.id : null  // Set authenticated user ID or null
+    };
+
+    // Pass both validated form data and additional user info to service
+    const contact = await contactService.createContact({ ...value, ...userInfo });
+
+    res.status(201).json({
+      success: true,
+      message: 'Contact form submitted successfully. We will get back to you soon!',
+      data: {
+        id: contact._id,
+        name: contact.name,
+        email: contact.email,
+        subject: contact.subject,
+        status: contact.status,
+        submitted_at: contact.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Error creating contact:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit contact form',
+      error: error.message
+    });
   }
+}
+
 
   // Get contact by ID (admin only)
   async getContactById(req, res) {

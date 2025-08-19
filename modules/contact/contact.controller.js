@@ -251,32 +251,29 @@ class ContactController {
   }
 
   // Get contacts by user ID (user can see their own contacts)
-  async getContactsByUserId(req, res) {
-    try {
-      const userId = req.user ? req.user.id : req.params.userId;
-      
-      if (!userId) {
-        return res.status(400).json({
-          success: false,
-          message: 'User ID is required'
-        });
-      }
-
-      const contacts = await contactService.getContactsByUserId(userId);
-
-      res.status(200).json({
-        success: true,
-        data: contacts
-      });
-    } catch (error) {
-      console.error('Error getting user contacts:', error);
-      res.status(500).json({
+async getContactsByUserId(req, res) {
+  try {
+const userId = req.user ? (req.user.id || req.user.userId) : req.params.userId;
+    if (!userId) {
+      return res.status(400).json({
         success: false,
-        message: 'Failed to fetch user contacts',
-        error: error.message
+        message: 'User ID is required'
       });
     }
+    const contacts = await contactService.getContactsByUserId(userId);
+    res.status(200).json({
+      success: true,
+      data: contacts
+    });
+  } catch (error) {
+    console.error('Error getting user contacts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user contacts',
+      error: error.message
+    });
   }
+}
 
   // Bulk update contact status (admin only)
   async bulkUpdateStatus(req, res) {

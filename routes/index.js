@@ -34,8 +34,8 @@ router.use('/api/expenses', expenseRoutes);
 router.use('/api/messages', messageRoutes);
 router.use('/api/payments', paymentRoutes);
 router.use('/api/vehicles', vehicleRoutes);
-router.use('/api', carRoutes);
-router.use('/api', contactRoutes);
-router.use('/api', bookingRoutes);
+router.use('/api/cars', carRoutes);
+router.use('/api/contact', contactRoutes);
+router.use('/api/bookings', bookingRoutes);
 
 module.exports = router;

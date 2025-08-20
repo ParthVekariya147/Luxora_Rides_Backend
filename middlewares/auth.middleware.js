@@ -19,6 +19,7 @@ const authMiddleware = (req, res, next) => {
     
     // Add user info to request
     req.user = decoded;
+console.log('auth.middleware.js / decoded / 21 -------------------  ', decoded);
     
     next();
   } catch (error) {

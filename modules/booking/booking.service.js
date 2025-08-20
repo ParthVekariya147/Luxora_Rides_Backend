@@ -9,58 +9,64 @@ const {
 
 class BookingService {
   // Create a new booking
-  async createBooking(bookingData) {
-    try {
-      // Check if car is available for the selected dates
-      const isCarAvailable = await this.checkCarAvailability(
-        bookingData.car_id,
-        bookingData.pickup_date,
-        bookingData.return_date
-      );
+// Create a new booking
+async createBooking(bookingData) {
+  try {
+    // Check if car is available for the selected dates
+    const isCarAvailable = await this.checkCarAvailability(
+      bookingData.car_id,
+      bookingData.pickup_date,
+      bookingData.return_date
+    );
 
-      if (!isCarAvailable) {
-        throw new Error('Car is not available for the selected dates');
-      }
-
-      // Get car details for pricing
-      const car = await Car.findById(bookingData.car_id);
-      if (!car) {
-        throw new Error('Car not found');
-      }
-
-      // Calculate total days
-      const pickupDate = new Date(bookingData.pickup_date);
-      const returnDate = new Date(bookingData.return_date);
-      const totalDays = Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24));
-
-      // Calculate pricing
-      const dailyRate = car.price_per_day;
-      const subtotal = dailyRate * totalDays;
-      const taxAmount = subtotal * 0.18; // 18% GST
-      const totalAmount = subtotal + taxAmount;
-      const securityDeposit = car.rental_details.security_deposit_inr;
-
-      // Create booking object
-      const booking = new Booking({
-        ...bookingData,
-        daily_rate: dailyRate,
-        total_days: totalDays,
-        subtotal: subtotal,
-        tax_amount: taxAmount,
-        total_amount: totalAmount,
-        security_deposit: securityDeposit
-      });
-
-      const savedBooking = await booking.save();
-
-      // Send admin notification
-      await this.sendAdminNotification(savedBooking);
-
-      return savedBooking;
-    } catch (error) {
-      throw error;
+    if (!isCarAvailable) {
+      throw new Error('Car is not available for the selected dates');
     }
+
+    // Get car details for pricing
+    const car = await Car.findById(bookingData.car_id);
+    if (!car) {
+      throw new Error('Car not found');
+    }
+
+    // Calculate total days
+    const pickupDate = new Date(bookingData.pickup_date);
+    const returnDate = new Date(bookingData.return_date);
+
+    let totalDays = Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24));
+    if (totalDays <= 0) {
+      totalDays = 1; // Minimum ek divas no rent charge
+    }
+
+    // Calculate pricing
+    const rentPerDay = car.price_per_day;
+    const subtotal = rentPerDay * totalDays;
+    const taxAmount = subtotal * 0.18; // 18% GST
+    const totalAmount = subtotal + taxAmount;
+    const securityDeposit = car.rental_details.security_deposit_inr;
+
+    // Create booking object
+    const booking = new Booking({
+      ...bookingData,
+      rent_per_day: rentPerDay,   // renamed field
+      total_days: totalDays,
+      subtotal,
+      tax_amount: taxAmount,
+      total_amount: totalAmount,
+      security_deposit: securityDeposit
+    });
+
+    const savedBooking = await booking.save();
+
+    // Send admin notification
+    await this.sendAdminNotification(savedBooking);
+
+    return savedBooking;
+  } catch (error) {
+    throw error;
   }
+}
+
 
   // Get booking by ID
   async getBookingById(bookingId) {

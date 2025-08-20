@@ -13,47 +13,52 @@ const {
 
 class BookingController {
   // Create a new booking
-  async createBooking(req, res) {
-    try {
-      // Validate request body
-      const { error, value } = createBookingValidation.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation error',
-          errors: error.details.map(detail => detail.message)
-        });
-      }
-
-      // Add user ID from authenticated user
-      const bookingData = {
-        ...value,
-        user_id: req.user.id
-      };
-
-      const booking = await bookingService.createBooking(bookingData);
-
-      res.status(201).json({
-        success: true,
-        message: 'Booking created successfully. Awaiting admin confirmation.',
-        data: {
-          id: booking._id,
-          booking_id: booking.booking_id,
-          status: booking.status,
-          total_amount: booking.total_amount,
-          pickup_date: booking.pickup_date,
-          return_date: booking.return_date
-        }
-      });
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      res.status(500).json({
+// Create a new booking
+async createBooking(req, res) {
+  try {
+    // Validate request body
+    const { error, value } = createBookingValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({
         success: false,
-        message: 'Failed to create booking',
-        error: error.message
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
       });
     }
+
+    // Add user ID from authenticated user
+    const bookingData = {
+      ...value,
+      user_id: req.user.id
+    };
+
+    // Booking service ma rent calculation handle thase
+    const booking = await bookingService.createBooking(bookingData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully. Awaiting admin confirmation.',
+      data: {
+        id: booking._id,
+        booking_id: booking.booking_id,
+        status: booking.status,
+        total_amount: booking.total_amount, // auto calculated
+        pickup_date: booking.pickup_date,
+        return_date: booking.return_date,
+        rent_per_day: booking.rent_per_day, // add karyu extra field
+        total_days: booking.total_days       // add karyu extra field
+      }
+    });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create booking',
+      error: error.message
+    });
   }
+}
+
 
   // Get booking by ID
   async getBookingById(req, res) {

@@ -9,7 +9,7 @@ const generateToken = (userId, email, role) => {
     },
     process.env.JWT_SECRET || 'your-secret-key',
     {
-      expiresIn: '7d'
+      expiresIn: '2h'
     }
   );
 };

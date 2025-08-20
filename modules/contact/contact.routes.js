@@ -1,26 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const contactController = require('./contact.controller');
-const { authMiddleware } = require('../../middlewares/auth.middleware');
+const { authMiddleware, adminMiddleware } = require('../../middlewares/auth.middleware');
 
-// Public routes (no authentication required)
-router.post('/contact', contactController.createContact);
-router.get('/contact/email/:email', contactController.getContactsByEmail);
+// Public route - Submit a new contact message
+router.post('/', contactController.createContact);
 
-// Protected routes (authentication required)
+// User routes - require authentication
 router.use(authMiddleware);
 
-// User routes (authenticated users can see their own contacts)
-router.get('/contact/my-contacts', contactController.getContactsByUserId);
+// Get user's own contact messages
+router.get('/my-messages', contactController.getContactsByUserId);
 
-// Admin routes (admin authentication required)
-router.get('/contact', contactController.getAllContacts);
-router.get('/contact/urgent', contactController.getUrgentContacts);
-router.get('/contact/stats', contactController.getContactStatistics);
-router.get('/contact/:contactId', contactController.getContactById);
-router.put('/contact/:contactId/status', contactController.updateContactStatus);
-router.post('/contact/:contactId/respond', contactController.respondToContact);
-router.delete('/contact/:contactId', contactController.deleteContact);
-router.post('/contact/bulk-update', contactController.bulkUpdateStatus);
+// Admin routes - all require authentication and admin role
+router.use(adminMiddleware);
+
+// View all user contact messages
+router.get('/queries', contactController.getAllContacts);
+
+// View details of a specific contact message
+router.get('/query/:contactId', contactController.getContactById);
+
+// Respond to a user's message
+router.post('/reply/:contactId', contactController.respondToContact);
+
+// Delete a specific contact query
+router.delete('/query/:contactId', contactController.deleteContact);
 
 module.exports = router;

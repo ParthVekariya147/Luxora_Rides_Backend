@@ -11,48 +11,50 @@ const {
 
 class ContactController {
   // Create a new contact submission (public endpoint)
-  async createContact(req, res) {
-    try {
-      // Validate request body
-      const { error, value } = createContactValidation.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation error',
-          errors: error.details.map(detail => detail.message)
-        });
-      }
-
-      // Get user info from request
-      const userInfo = {
-        ip_address: req.ip || req.connection.remoteAddress,
-        user_agent: req.get('User-Agent'),
-        user_id: req.user ? req.user.id : null
-      };
-
-      const contact = await contactService.createContact(value, userInfo);
-
-      res.status(201).json({
-        success: true,
-        message: 'Contact form submitted successfully. We will get back to you soon!',
-        data: {
-          id: contact._id,
-          name: contact.name,
-          email: contact.email,
-          subject: contact.subject,
-          status: contact.status,
-          submitted_at: contact.createdAt
-        }
-      });
-    } catch (error) {
-      console.error('Error creating contact:', error);
-      res.status(500).json({
+async createContact(req, res) {
+  try {
+    // Validate request body
+    const { error, value } = createContactValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({
         success: false,
-        message: 'Failed to submit contact form',
-        error: error.message
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
       });
     }
+
+    // Get user info from request
+    const userInfo = {
+      ip_address: req.ip || req.connection.remoteAddress,
+      user_agent: req.get('User-Agent'),
+      user_id: req.user ? req.user.id : null  // Set authenticated user ID or null
+    };
+
+    // Pass both validated form data and additional user info to service
+    const contact = await contactService.createContact({ ...value, ...userInfo });
+
+    res.status(201).json({
+      success: true,
+      message: 'Contact form submitted successfully. We will get back to you soon!',
+      data: {
+        id: contact._id,
+        name: contact.name,
+        email: contact.email,
+        subject: contact.subject,
+        status: contact.status,
+        submitted_at: contact.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Error creating contact:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit contact form',
+      error: error.message
+    });
   }
+}
+
 
   // Get contact by ID (admin only)
   async getContactById(req, res) {
@@ -251,32 +253,29 @@ class ContactController {
   }
 
   // Get contacts by user ID (user can see their own contacts)
-  async getContactsByUserId(req, res) {
-    try {
-      const userId = req.user ? req.user.id : req.params.userId;
-      
-      if (!userId) {
-        return res.status(400).json({
-          success: false,
-          message: 'User ID is required'
-        });
-      }
-
-      const contacts = await contactService.getContactsByUserId(userId);
-
-      res.status(200).json({
-        success: true,
-        data: contacts
-      });
-    } catch (error) {
-      console.error('Error getting user contacts:', error);
-      res.status(500).json({
+async getContactsByUserId(req, res) {
+  try {
+const userId = req.user ? (req.user.id || req.user.userId) : req.params.userId;
+    if (!userId) {
+      return res.status(400).json({
         success: false,
-        message: 'Failed to fetch user contacts',
-        error: error.message
+        message: 'User ID is required'
       });
     }
+    const contacts = await contactService.getContactsByUserId(userId);
+    res.status(200).json({
+      success: true,
+      data: contacts
+    });
+  } catch (error) {
+    console.error('Error getting user contacts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user contacts',
+      error: error.message
+    });
   }
+}
 
   // Bulk update contact status (admin only)
   async bulkUpdateStatus(req, res) {

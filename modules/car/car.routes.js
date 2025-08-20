@@ -21,30 +21,30 @@ const {
 const { authMiddleware, adminMiddleware } = require('../../middlewares/auth.middleware');
 
 // Public routes (no authentication required)
-router.get('/cars/available', getAvailableCars);
-router.get('/cars/featured', getFeaturedCars);
-router.get('/cars/brand/:brand', getCarsByBrand);
-router.get('/cars/seating/:capacity', getCarsBySeatingCapacity);
-router.get('/cars/search', searchCars);
-router.get('/cars/price-range', getCarsByPriceRange);
-router.get('/cars/:carId', getCarById);
-router.get('/cars/:carId/recommendations', getCarRecommendations);
+router.get('/', listCars); // List all cars (public access)
+router.get('/available', getAvailableCars);
+router.get('/featured', getFeaturedCars);
+router.get('/brand/:brand', getCarsByBrand);
+router.get('/seating/:capacity', getCarsBySeatingCapacity);
+router.get('/search', searchCars);
+router.get('/price-range', getCarsByPriceRange);
+router.get('/:carId', getCarById);
+router.get('/:carId/recommendations', getCarRecommendations);
 
 // Protected routes (authentication required)
 router.use(authMiddleware);
 
 // User routes (authenticated users)
-router.get('/cars', listCars);
-router.get('/cars/stats/statistics', getCarStatistics);
+router.get('/stats/statistics', getCarStatistics);
 
 // Admin routes (admin authentication required)
 router.use(adminMiddleware);
 
-router.post('/cars', createCar);
-router.put('/cars/:carId', updateCar);
-router.delete('/cars/:carId', deleteCar);
-router.put('/cars/:carId/status', updateCarStatus);
-router.post('/cars/bulk-update', bulkUpdateCars);
-router.post('/cars/:carId/upload-images', uploadCarImages);
+router.post('/', createCar);
+router.put('/:carId', updateCar);
+router.delete('/:carId', deleteCar);
+router.put('/:carId/status', updateCarStatus);
+router.post('/bulk-update', bulkUpdateCars);
+router.post('/:carId/upload-images', uploadCarImages);
 
 module.exports = router;

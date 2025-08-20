@@ -50,7 +50,7 @@ class CalendarService {
     const docs = await CalendarEvent.find(filter)
       .populate('client')
       .populate('driver')
-      .populate('vehicleId')
+      .populate('vehicle')  
       .sort({ start: 1 })
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit));

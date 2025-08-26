@@ -25,6 +25,9 @@ const allowedOrigins = [
 
 // CORS configuration with origin function
 app.use(cors({
+<<<<<<< HEAD
+  origin: process.env.FRONTEND_URL || 'http://localhost:3001' || 'http://localhost:3002'|| 'http://localhost:3003',
+=======
   origin: function (origin, callback) {
     // Allow requests with no origin (e.g., mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -34,6 +37,7 @@ app.use(cors({
       callback(new Error('Not allowed by CORS: ' + origin));
     }
   },
+>>>>>>> f86470af0d32456346b4ba3082e606c93c54055c
   credentials: true
 }));
 

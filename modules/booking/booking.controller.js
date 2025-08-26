@@ -45,7 +45,8 @@ async createBooking(req, res) {
         total_amount: booking.total_amount, // auto calculated
         pickup_date: booking.pickup_date,
         return_date: booking.return_date,
-        rent_per_day: booking.rent_per_day, // add karyu extra field
+  rent_per_day: booking.daily_rate,
+
         total_days: booking.total_days       // add karyu extra field
       }
     });

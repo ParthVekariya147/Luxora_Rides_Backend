@@ -9,64 +9,57 @@ const {
 
 class BookingService {
   // Create a new booking
-// Create a new booking
-async createBooking(bookingData) {
-  try {
-    // Check if car is available for the selected dates
-    const isCarAvailable = await this.checkCarAvailability(
-      bookingData.car_id,
-      bookingData.pickup_date,
-      bookingData.return_date
-    );
+  async createBooking(bookingData) {
+    try {
+      // Check if car is available for the selected dates
+      const isCarAvailable = await this.checkCarAvailability(
+        bookingData.car_id,
+        bookingData.pickup_date,
+        bookingData.return_date
+      );
 
-    if (!isCarAvailable) {
-      throw new Error('Car is not available for the selected dates');
+      if (!isCarAvailable) {
+        throw new Error('Car is not available for the selected dates');
+      }
+
+      // Get car details for pricing
+      const car = await Car.findById(bookingData.car_id);
+      if (!car) {
+        throw new Error('Car not found');
+      }
+
+      // Calculate total days
+      const pickupDate = new Date(bookingData.pickup_date);
+      const returnDate = new Date(bookingData.return_date);
+
+      let totalDays = Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24));
+      if (totalDays <= 0) {
+        totalDays = 1; // Minimum 1 day rent charge
+      }
+
+      // Calculate pricing
+      const dailyRate = car.price_per_day;
+      const totalAmount = dailyRate * totalDays;
+
+      // Create booking object aligned with simplified model
+      const booking = new Booking({
+        ...bookingData,
+        daily_rate: dailyRate,
+        total_days: totalDays,
+        total_amount: totalAmount
+        // Removed subtotal, tax_amount, security_deposit as per simplified model
+      });
+
+      const savedBooking = await booking.save();
+
+      // Send admin notification
+      await this.sendAdminNotification(savedBooking);
+
+      return savedBooking;
+    } catch (error) {
+      throw error;
     }
-
-    // Get car details for pricing
-    const car = await Car.findById(bookingData.car_id);
-    if (!car) {
-      throw new Error('Car not found');
-    }
-
-    // Calculate total days
-    const pickupDate = new Date(bookingData.pickup_date);
-    const returnDate = new Date(bookingData.return_date);
-
-    let totalDays = Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24));
-    if (totalDays <= 0) {
-      totalDays = 1; // Minimum ek divas no rent charge
-    }
-
-    // Calculate pricing
-    const rentPerDay = car.price_per_day;
-    const subtotal = rentPerDay * totalDays;
-    const taxAmount = subtotal * 0.18; // 18% GST
-    const totalAmount = subtotal + taxAmount;
-    const securityDeposit = car.rental_details.security_deposit_inr;
-
-    // Create booking object
-    const booking = new Booking({
-      ...bookingData,
-      rent_per_day: rentPerDay,   // renamed field
-      total_days: totalDays,
-      subtotal,
-      tax_amount: taxAmount,
-      total_amount: totalAmount,
-      security_deposit: securityDeposit
-    });
-
-    const savedBooking = await booking.save();
-
-    // Send admin notification
-    await this.sendAdminNotification(savedBooking);
-
-    return savedBooking;
-  } catch (error) {
-    throw error;
   }
-}
-
 
   // Get booking by ID
   async getBookingById(bookingId) {
@@ -86,7 +79,7 @@ async createBooking(bookingData) {
     }
   }
 
-  // Get booking by booking ID (custom ID)
+  // Get booking by custom booking ID
   async getBookingByBookingId(bookingId) {
     try {
       const booking = await Booking.findOne({ booking_id: bookingId })
@@ -110,20 +103,19 @@ async createBooking(bookingData) {
       const { page = 1, limit = 10, sortBy = 'created_at', sortOrder = 'desc' } = pagination;
       const { status, payment_status, user_id, car_id, date_from, date_to, search } = filters;
 
-      // Build query
       const query = {};
-      
+
       if (status) query.status = status;
       if (payment_status) query.payment_status = payment_status;
       if (user_id) query.user_id = user_id;
       if (car_id) query.car_id = car_id;
-      
+
       if (date_from || date_to) {
         query.pickup_date = {};
         if (date_from) query.pickup_date.$gte = new Date(date_from);
         if (date_to) query.pickup_date.$lte = new Date(date_to);
       }
-      
+
       if (search) {
         query.$or = [
           { booking_id: { $regex: search, $options: 'i' } },
@@ -132,7 +124,6 @@ async createBooking(bookingData) {
         ];
       }
 
-      // Build sort object
       const sort = {};
       sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
@@ -166,14 +157,14 @@ async createBooking(bookingData) {
   async getUserBookings(userId, filters = {}) {
     try {
       const { status, page = 1, limit = 10 } = filters;
-      
+
       const query = { user_id: userId };
       if (status) query.status = status;
 
       const skip = (page - 1) * limit;
 
       const bookings = await Booking.find(query)
-        .populate('car_id', 'car_name brand image_url price_per_day')
+        .populate('car_id', 'car_name brand image_url daily_rate')
         .sort({ created_at: -1 })
         .skip(skip)
         .limit(limit);
@@ -234,10 +225,10 @@ async createBooking(bookingData) {
   async confirmBooking(bookingId, adminId, notes = '') {
     try {
       const booking = await this.updateBookingStatus(bookingId, 'confirmed', adminId, notes);
-      
+
       // Send confirmation email
       await this.sendConfirmationEmail(booking);
-      
+
       return booking;
     } catch (error) {
       throw error;
@@ -316,21 +307,11 @@ async createBooking(bookingData) {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            pending: {
-              $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
-            },
-            confirmed: {
-              $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
-            },
-            in_progress: {
-              $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] }
-            },
-            completed: {
-              $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-            },
-            cancelled: {
-              $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
-            },
+            pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            confirmed: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } },
+            in_progress: { $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] } },
+            completed: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+            cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
             total_revenue: {
               $sum: { $cond: [{ $eq: ['$payment_status', 'completed'] }, '$total_amount', 0] }
             }
@@ -401,10 +382,8 @@ async createBooking(bookingData) {
       };
 
       await sendBookingConfirmationEmail(emailData);
-      
-      // Update email sent status
-      booking.email_sent.confirmation = true;
-      await booking.save();
+
+      // Removed email_sent confirmation update per simplified model
     } catch (error) {
       console.error('Error sending confirmation email:', error);
     }
@@ -464,7 +443,7 @@ async createBooking(bookingData) {
   async deleteBooking(bookingId) {
     try {
       const booking = await Booking.findByIdAndDelete(bookingId);
-      
+
       if (!booking) {
         throw new Error('Booking not found');
       }
@@ -483,10 +462,10 @@ async createBooking(bookingData) {
         pickup_date: { $gte: today },
         status: { $in: ['confirmed', 'in_progress'] }
       })
-      .populate('user_id', 'name email phone')
-      .populate('car_id', 'car_name brand image_url')
-      .sort({ pickup_date: 1 })
-      .limit(10);
+        .populate('user_id', 'name email phone')
+        .populate('car_id', 'car_name brand image_url')
+        .sort({ pickup_date: 1 })
+        .limit(10);
 
       return bookings;
     } catch (error) {
@@ -502,9 +481,9 @@ async createBooking(bookingData) {
         return_date: { $lt: today },
         status: { $in: ['confirmed', 'in_progress'] }
       })
-      .populate('user_id', 'name email phone')
-      .populate('car_id', 'car_name brand image_url')
-      .sort({ return_date: 1 });
+        .populate('user_id', 'name email phone')
+        .populate('car_id', 'car_name brand image_url')
+        .sort({ return_date: 1 });
 
       return bookings;
     } catch (error) {

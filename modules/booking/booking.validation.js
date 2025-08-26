@@ -48,50 +48,29 @@ const createBookingValidation = Joi.object({
       'string.max': 'Return location cannot exceed 200 characters'
     }),
 
-  pickup_time: Joi.string()
-    .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
-    .default('09:00')
-    .messages({
-      'string.pattern.base': 'Pickup time must be in HH:MM format'
-    }),
-
-  return_time: Joi.string()
-    .pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
-    .default('18:00')
-    .messages({
-      'string.pattern.base': 'Return time must be in HH:MM format'
-    }),
-
   payment_method: Joi.string()
-    .valid('credit_card', 'debit_card', 'upi', 'net_banking', 'cash', 'wallet')
+    .valid('credit_card', 'debit_card', 'upi', 'cash', 'wallet')
     .required()
     .messages({
       'any.only': 'Invalid payment method',
       'any.required': 'Payment method is required'
     }),
 
-  additional_services: Joi.array()
-    .items(
-      Joi.object({
-        service_name: Joi.string().required(),
-        service_price: Joi.number().positive().required(),
-        description: Joi.string().optional()
-      })
-    )
-    .optional(),
+  daily_rate: Joi.number()
+    .greater(0)
+    .required()
+    .messages({
+      'number.greater': 'Daily rate must be greater than 0',
+      'any.required': 'Daily rate is required'
+    }),
 
-  driver_details: Joi.object({
-    name: Joi.string().trim().min(2).max(100).optional(),
-    license_number: Joi.string().trim().optional(),
-    phone: Joi.string().trim().optional(),
-    email: Joi.string().email().optional()
-  }).optional()
+  // Removed additional_services, driver_details, pickup_time, return_time from create validation
 });
 
 // Validation for updating booking status
 const updateStatusValidation = Joi.object({
   status: Joi.string()
-    .valid('pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rejected')
+    .valid('pending', 'confirmed', 'completed', 'cancelled')
     .required()
     .messages({
       'any.only': 'Invalid status value',
@@ -132,7 +111,7 @@ const cancelBookingValidation = Joi.object({
 // Validation for updating payment status
 const updatePaymentValidation = Joi.object({
   payment_status: Joi.string()
-    .valid('pending', 'partial', 'completed', 'failed', 'refunded')
+    .valid('pending', 'completed', 'failed')
     .required()
     .messages({
       'any.only': 'Invalid payment status',
@@ -151,11 +130,11 @@ const updatePaymentValidation = Joi.object({
 // Validation for booking filters
 const bookingFiltersValidation = Joi.object({
   status: Joi.string()
-    .valid('pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rejected')
+    .valid('pending', 'confirmed', 'completed', 'cancelled')
     .optional(),
 
   payment_status: Joi.string()
-    .valid('pending', 'partial', 'completed', 'failed', 'refunded')
+    .valid('pending', 'completed', 'failed')
     .optional(),
 
   user_id: Joi.string()
@@ -234,120 +213,11 @@ const paginationValidation = Joi.object({
 // Validation for booking ID parameter
 const bookingIdValidation = Joi.object({
   bookingId: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
-    .required()
-    .messages({
-      'string.pattern.base': 'Invalid booking ID format',
-      'any.required': 'Booking ID is required'
-    })
-});
-
-// Validation for booking ID (custom ID) parameter
-const customBookingIdValidation = Joi.object({
-  bookingId: Joi.string()
     .pattern(/^BK[A-Z0-9]+$/)
     .required()
     .messages({
       'string.pattern.base': 'Invalid booking ID format (should start with BK)',
       'any.required': 'Booking ID is required'
-    })
-});
-
-// Validation for vehicle handover
-const vehicleHandoverValidation = Joi.object({
-  pickup_condition: Joi.string()
-    .valid('excellent', 'good', 'fair', 'poor')
-    .default('excellent')
-    .messages({
-      'any.only': 'Invalid pickup condition'
-    }),
-
-  return_condition: Joi.string()
-    .valid('excellent', 'good', 'fair', 'poor')
-    .optional()
-    .messages({
-      'any.only': 'Invalid return condition'
-    }),
-
-  pickup_notes: Joi.string()
-    .trim()
-    .max(500)
-    .optional()
-    .messages({
-      'string.max': 'Pickup notes cannot exceed 500 characters'
-    }),
-
-  return_notes: Joi.string()
-    .trim()
-    .max(500)
-    .optional()
-    .messages({
-      'string.max': 'Return notes cannot exceed 500 characters'
-    }),
-
-  pickup_odometer: Joi.number()
-    .positive()
-    .optional()
-    .messages({
-      'number.base': 'Pickup odometer must be a number',
-      'number.positive': 'Pickup odometer must be positive'
-    }),
-
-  return_odometer: Joi.number()
-    .positive()
-    .min(Joi.ref('pickup_odometer'))
-    .optional()
-    .messages({
-      'number.base': 'Return odometer must be a number',
-      'number.positive': 'Return odometer must be positive',
-      'number.min': 'Return odometer must be greater than or equal to pickup odometer'
-    }),
-
-  fuel_level_pickup: Joi.string()
-    .valid('full', '3/4', '1/2', '1/4', 'empty')
-    .optional()
-    .messages({
-      'any.only': 'Invalid fuel level'
-    }),
-
-  fuel_level_return: Joi.string()
-    .valid('full', '3/4', '1/2', '1/4', 'empty')
-    .optional()
-    .messages({
-      'any.only': 'Invalid fuel level'
-    })
-});
-
-// Validation for insurance and damage
-const insuranceValidation = Joi.object({
-  is_insured: Joi.boolean()
-    .default(true)
-    .messages({
-      'boolean.base': 'Insurance status must be a boolean'
-    }),
-
-  insurance_amount: Joi.number()
-    .min(0)
-    .default(0)
-    .messages({
-      'number.base': 'Insurance amount must be a number',
-      'number.min': 'Insurance amount cannot be negative'
-    }),
-
-  damage_charges: Joi.number()
-    .min(0)
-    .default(0)
-    .messages({
-      'number.base': 'Damage charges must be a number',
-      'number.min': 'Damage charges cannot be negative'
-    }),
-
-  damage_description: Joi.string()
-    .trim()
-    .max(1000)
-    .optional()
-    .messages({
-      'string.max': 'Damage description cannot exceed 1000 characters'
     })
 });
 
@@ -360,7 +230,4 @@ module.exports = {
   bookingFiltersValidation,
   paginationValidation,
   bookingIdValidation,
-  customBookingIdValidation,
-  vehicleHandoverValidation,
-  insuranceValidation
 };

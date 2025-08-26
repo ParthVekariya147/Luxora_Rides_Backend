@@ -1,13 +1,13 @@
-const { verifyToken } = require('../utils/generateToken');
+const { verifyToken } = require("../utils/generateToken");
 
 const authMiddleware = (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. No token provided.'
+        message: "Access denied. No token provided.",
       });
     }
 
@@ -16,26 +16,25 @@ const authMiddleware = (req, res, next) => {
 
     // Verify token
     const decoded = verifyToken(token);
-    
+
     // Add user info to request
     req.user = decoded;
-console.log('auth.middleware.js / decoded / 21 -------------------  ', decoded);
-    
+
     next();
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid token'
+      message: "Invalid token",
     });
   }
 };
 
 // Middleware to check if user is admin
 const adminMiddleware = (req, res, next) => {
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== "admin") {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. Admin role required.'
+      message: "Access denied. Admin role required.",
     });
   }
   next();
@@ -43,5 +42,5 @@ const adminMiddleware = (req, res, next) => {
 
 module.exports = {
   authMiddleware,
-  adminMiddleware
+  adminMiddleware,
 };

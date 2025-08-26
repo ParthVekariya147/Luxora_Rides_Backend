@@ -1,4 +1,4 @@
-const Car = require('./car.model');
+const Car = require("./car.model");
 
 // Create a new car
 const createCar = async (carData) => {
@@ -16,7 +16,7 @@ const getCarById = async (carId) => {
   try {
     const car = await Car.findById(carId);
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error("Car not found");
     }
     return car;
   } catch (error) {
@@ -27,13 +27,12 @@ const getCarById = async (carId) => {
 // Update car by ID
 const updateCar = async (carId, updateData) => {
   try {
-    const car = await Car.findByIdAndUpdate(
-      carId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const car = await Car.findByIdAndUpdate(carId, updateData, {
+      new: true,
+      runValidators: true,
+    });
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error("Car not found");
     }
     return car;
   } catch (error) {
@@ -46,9 +45,9 @@ const deleteCar = async (carId) => {
   try {
     const car = await Car.findByIdAndDelete(carId);
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error("Car not found");
     }
-    return { message: 'Car deleted successfully' };
+    return { message: "Car deleted successfully" };
   } catch (error) {
     throw new Error(`Failed to delete car: ${error.message}`);
   }
@@ -64,62 +63,47 @@ const listCars = async (query = {}) => {
       year_model,
       min_price,
       max_price,
-      engine_type,
+      fuel_type,
       seating_capacity,
       status,
-      sort_by = 'createdAt',
-      sort_order = 'desc',
-      search
+      sort_by = "createdAt",
+      sort_order = "desc",
+      search,
     } = query;
-
-    // Build filter object
     const filter = {};
-
-    if (brand) filter.brand = { $regex: brand, $options: 'i' };
+    if (brand) filter.brand = { $regex: brand, $options: "i" };
     if (year_model) filter.year_model = year_model;
     if (min_price || max_price) {
       filter.price_per_day = {};
       if (min_price) filter.price_per_day.$gte = parseFloat(min_price);
       if (max_price) filter.price_per_day.$lte = parseFloat(max_price);
     }
-    if (engine_type) filter['technical_specifications.engine_type'] = { $regex: engine_type, $options: 'i' };
-    if (seating_capacity) filter['dimensions.seating_capacity'] = parseInt(seating_capacity);
+    if (fuel_type) filter.fuel_type = fuel_type; // <-- અહીં ફેરફાર કર્યો છે
+    if (seating_capacity) filter.seating_capacity = parseInt(seating_capacity); // <-- અહીં ફેરફાર કર્યો છે
     if (status) filter.status = status;
-
-    // Search functionality
     if (search) {
       filter.$or = [
-        { car_name: { $regex: search, $options: 'i' } },
-        { brand: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { car_name: { $regex: search, $options: "i" } },
+        { brand: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
       ];
     }
-
-    // Build sort object
-    const sort = {};
-    sort[sort_by] = sort_order === 'desc' ? -1 : 1;
-
-    // Calculate pagination
+    const sort = { [sort_by]: sort_order === "desc" ? -1 : 1 };
     const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    // Execute query
     const cars = await Car.find(filter)
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
       .lean();
-
-    // Get total count for pagination
     const total = await Car.countDocuments(filter);
-
     return {
       cars,
       pagination: {
         current_page: parseInt(page),
         total_pages: Math.ceil(total / parseInt(limit)),
         total_items: total,
-        items_per_page: parseInt(limit)
-      }
+        items_per_page: parseInt(limit),
+      },
     };
   } catch (error) {
     throw new Error(`Failed to list cars: ${error.message}`);
@@ -129,11 +113,10 @@ const listCars = async (query = {}) => {
 // Get cars by brand
 const getCarsByBrand = async (brand) => {
   try {
-    const cars = await Car.find({ 
-      brand: { $regex: brand, $options: 'i' },
-      status: 'available'
+    return await Car.find({
+      brand: { $regex: brand, $options: "i" },
+      status: "available",
     }).sort({ price_per_day: 1 });
-    return cars;
   } catch (error) {
     throw new Error(`Failed to get cars by brand: ${error.message}`);
   }
@@ -142,8 +125,7 @@ const getCarsByBrand = async (brand) => {
 // Get available cars
 const getAvailableCars = async () => {
   try {
-    const cars = await Car.find({ status: 'available' }).sort({ price_per_day: 1 });
-    return cars;
+    return await Car.find({ status: "available" }).sort({ price_per_day: 1 });
   } catch (error) {
     throw new Error(`Failed to get available cars: ${error.message}`);
   }
@@ -152,11 +134,10 @@ const getAvailableCars = async () => {
 // Get cars by price range
 const getCarsByPriceRange = async (minPrice, maxPrice) => {
   try {
-    const cars = await Car.find({
+    return await Car.find({
       price_per_day: { $gte: minPrice, $lte: maxPrice },
-      status: 'available'
+      status: "available",
     }).sort({ price_per_day: 1 });
-    return cars;
   } catch (error) {
     throw new Error(`Failed to get cars by price range: ${error.message}`);
   }
@@ -165,11 +146,10 @@ const getCarsByPriceRange = async (minPrice, maxPrice) => {
 // Get cars by seating capacity
 const getCarsBySeatingCapacity = async (capacity) => {
   try {
-    const cars = await Car.find({
-      'dimensions.seating_capacity': capacity,
-      status: 'available'
-    }).sort({ price_per_day: 1 });
-    return cars;
+    return await Car.find({
+      seating_capacity: capacity,
+      status: "available",
+    }).sort({ price_per_day: 1 }); // <-- અહીં ફેરફાર કર્યો છે
   } catch (error) {
     throw new Error(`Failed to get cars by seating capacity: ${error.message}`);
   }
@@ -184,7 +164,7 @@ const updateCarStatus = async (carId, status) => {
       { new: true, runValidators: true }
     );
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error("Car not found");
     }
     return car;
   } catch (error) {
@@ -201,36 +181,31 @@ const getCarStatistics = async () => {
           _id: null,
           total_cars: { $sum: 1 },
           available_cars: {
-            $sum: { $cond: [{ $eq: ['$status', 'available'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "available"] }, 1, 0] },
           },
           rented_cars: {
-            $sum: { $cond: [{ $eq: ['$status', 'rented'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "rented"] }, 1, 0] },
           },
           maintenance_cars: {
-            $sum: { $cond: [{ $eq: ['$status', 'maintenance'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "maintenance"] }, 1, 0] },
           },
-          average_price: { $avg: '$price_per_day' },
-          min_price: { $min: '$price_per_day' },
-          max_price: { $max: '$price_per_day' }
-        }
-      }
+          average_price: { $avg: "$price_per_day" },
+          min_price: { $min: "$price_per_day" },
+          max_price: { $max: "$price_per_day" },
+        },
+      },
     ]);
-
     const brandStats = await Car.aggregate([
       {
         $group: {
-          _id: '$brand',
+          _id: "$brand",
           count: { $sum: 1 },
-          average_price: { $avg: '$price_per_day' }
-        }
+          average_price: { $avg: "$price_per_day" },
+        },
       },
-      { $sort: { count: -1 } }
+      { $sort: { count: -1 } },
     ]);
-
-    return {
-      overall: stats[0] || {},
-      by_brand: brandStats
-    };
+    return { overall: stats[0] || {}, by_brand: brandStats };
   } catch (error) {
     throw new Error(`Failed to get car statistics: ${error.message}`);
   }
@@ -244,57 +219,36 @@ const searchCars = async (searchParams) => {
       brand,
       min_price,
       max_price,
-      engine_type,
+      fuel_type,
       seating_capacity,
       features,
-      sort_by = 'price_per_day',
-      sort_order = 'asc'
+      sort_by = "price_per_day",
+      sort_order = "asc",
     } = searchParams;
-
-    const filter = { status: 'available' };
-
-    // Text search
+    const filter = { status: "available" };
     if (query) {
       filter.$or = [
-        { car_name: { $regex: query, $options: 'i' } },
-        { brand: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } }
+        { car_name: { $regex: query, $options: "i" } },
+        { brand: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
       ];
     }
-
-    // Brand filter
-    if (brand) {
-      filter.brand = { $regex: brand, $options: 'i' };
-    }
-
-    // Price range filter
+    if (brand) filter.brand = { $regex: brand, $options: "i" };
     if (min_price || max_price) {
       filter.price_per_day = {};
       if (min_price) filter.price_per_day.$gte = parseFloat(min_price);
       if (max_price) filter.price_per_day.$lte = parseFloat(max_price);
     }
-
-    // Engine type filter
-    if (engine_type) {
-      filter['technical_specifications.engine_type'] = { $regex: engine_type, $options: 'i' };
-    }
-
-    // Seating capacity filter
-    if (seating_capacity) {
-      filter['dimensions.seating_capacity'] = parseInt(seating_capacity);
-    }
-
-    // Features filter
+    if (fuel_type) filter.fuel_type = fuel_type; // <-- અહીં ફેરફાર કર્યો છે
+    if (seating_capacity) filter.seating_capacity = parseInt(seating_capacity); // <-- અહીં ફેરફાર કર્યો છે
     if (features) {
-      const featureArray = Array.isArray(features) ? features : [features];
-      filter['features.ambient_lighting'] = { $in: featureArray.map(f => f === 'ambient_lighting') };
+      const featureArray = Array.isArray(features)
+        ? features
+        : features.split(",");
+      filter.features = { $all: featureArray }; // <-- અહીં ફેરફાર કર્યો છે
     }
-
-    const sort = {};
-    sort[sort_by] = sort_order === 'desc' ? -1 : 1;
-
-    const cars = await Car.find(filter).sort(sort);
-    return cars;
+    const sort = { [sort_by]: sort_order === "desc" ? -1 : 1 };
+    return await Car.find(filter).sort(sort);
   } catch (error) {
     throw new Error(`Failed to search cars: ${error.message}`);
   }
@@ -303,12 +257,9 @@ const searchCars = async (searchParams) => {
 // Bulk update cars
 const bulkUpdateCars = async (carIds, updateData) => {
   try {
-    const result = await Car.updateMany(
-      { _id: { $in: carIds } },
-      updateData,
-      { runValidators: true }
-    );
-    return result;
+    return await Car.updateMany({ _id: { $in: carIds } }, updateData, {
+      runValidators: true,
+    });
   } catch (error) {
     throw new Error(`Failed to bulk update cars: ${error.message}`);
   }
@@ -317,16 +268,13 @@ const bulkUpdateCars = async (carIds, updateData) => {
 // Get featured cars (high-rated or premium)
 const getFeaturedCars = async (limit = 6) => {
   try {
-    const cars = await Car.find({
-      status: 'available',
-      $or: [
-        { ratings: { $gte: 4 } },
-        { price_per_day: { $gte: 5000 } } // Premium cars
-      ]
+    // 'ratings' કાઢી નાખ્યું છે કારણ કે તે નવા મોડેલમાં નથી.
+    return await Car.find({
+      status: "available",
+      price_per_day: { $gte: 5000 },
     })
-    .sort({ ratings: -1, price_per_day: -1 })
-    .limit(limit);
-    return cars;
+      .sort({ price_per_day: -1 }) // ફક્ત કિંમત પ્રમાણે સોર્ટ કર્યું છે
+      .limit(limit);
   } catch (error) {
     throw new Error(`Failed to get featured cars: ${error.message}`);
   }
@@ -346,5 +294,5 @@ module.exports = {
   getCarStatistics,
   searchCars,
   bulkUpdateCars,
-  getFeaturedCars
+  getFeaturedCars,
 };

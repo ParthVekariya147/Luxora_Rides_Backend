@@ -23,7 +23,7 @@
   router.use(authMiddleware, adminMiddleware);
 
   // Calendar (Bookings)
-  router.post('/bookings', addBooking);
+  router.post('/bookings/new', addBooking);
   router.get('/bookings', listBookings);
   router.get('/bookings/pending', listPendingBookings);
   router.get('/bookings/:bookingId', getBooking);

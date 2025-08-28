@@ -67,7 +67,7 @@ class BookingService {
       const booking = await Booking.findById(bookingId)
         .populate('user_id', 'name email phone')
         .populate('car_id')
-        .populate('admin_id', 'name email');
+      
 
       if (!booking) {
         throw new Error('Booking not found');
@@ -132,7 +132,7 @@ class BookingService {
       const bookings = await Booking.find(query)
         .populate('user_id', 'name email phone')
         .populate('car_id', 'car_name brand image_url')
-        .populate('admin_id', 'name email')
+    
         .sort(sort)
         .skip(skip)
         .limit(limit);

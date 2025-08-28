@@ -213,10 +213,8 @@ const paginationValidation = Joi.object({
 // Validation for booking ID parameter
 const bookingIdValidation = Joi.object({
   bookingId: Joi.string()
-    .pattern(/^BK[A-Z0-9]+$/)
     .required()
     .messages({
-      'string.pattern.base': 'Invalid booking ID format (should start with BK)',
       'any.required': 'Booking ID is required'
     })
 });

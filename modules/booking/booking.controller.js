@@ -1,4 +1,4 @@
-const bookingService = require('./booking.service');
+const bookingService = require("./booking.service");
 const {
   createBookingValidation,
   updateStatusValidation,
@@ -8,69 +8,95 @@ const {
   bookingFiltersValidation,
   paginationValidation,
   bookingIdValidation,
-  customBookingIdValidation
-} = require('./booking.validation');
+  customBookingIdValidation,
+} = require("./booking.validation");
 
 class BookingController {
   // Create a new booking
-// Create a new booking
-async createBooking(req, res) {
-  try {
-    // Validate request body
-    const { error, value } = createBookingValidation.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: error.details.map(detail => detail.message)
-      });
-    }
-
-    // Add user ID from authenticated user
-    const bookingData = {
-      ...value,
-      user_id: req.user.id
-    };
-
-    // Booking service ma rent calculation handle thase
-    const booking = await bookingService.createBooking(bookingData);
-
-    res.status(201).json({
-      success: true,
-      message: 'Booking created successfully. Awaiting admin confirmation.',
-      data: {
-        id: booking._id,
-        booking_id: booking.booking_id,
-        status: booking.status,
-        total_amount: booking.total_amount, // auto calculated
-        pickup_date: booking.pickup_date,
-        return_date: booking.return_date,
-  rent_per_day: booking.daily_rate,
-
-        total_days: booking.total_days       // add karyu extra field
-      }
-    });
-  } catch (error) {
-    console.error('Error creating booking:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create booking',
-      error: error.message
-    });
-  }
-}
-
-
-  // Get booking by ID
-  async getBookingById(req, res) {
+  // Create a new booking
+  async createBooking(req, res) {
     try {
-      // Validate booking ID
-      const { error, value } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      // Validate request body (without user_id)
+      const { error, value } = createBookingValidation.validate(req.body)
+
       if (error) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: error.details[0].message
+          message: "Validation error",
+          errors: error.details.map((detail) => detail.message),
+        });
+      }
+
+      // Check if user is authenticated
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: "User not authenticated",
+        });
+      }
+
+      // Try different user ID fields
+      const userId = req.user.id || req.user._id || req.user.userId;
+      console.log("Extracted userId:", userId);
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "User ID not found in token",
+        });
+      }
+
+      // Add user ID from authenticated user AFTER validation
+      const bookingData = {
+        ...value,
+        user_id: userId,
+      };
+
+      console.log("Final bookingData:", bookingData);
+
+      const booking = await bookingService.createBooking(bookingData);
+      console.log(
+        "booking.controller.js / booking / 36 -------------------  ",
+        booking
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Booking created successfully. Awaiting admin confirmation.",
+        data: {
+          id: booking._id,
+          booking_id: booking.booking_id,
+          status: booking.status,
+          total_amount: booking.total_amount,
+          pickup_date: booking.pickup_date,
+          return_date: booking.return_date,
+          rent_per_day: booking.daily_rate,
+          total_days: booking.total_days,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to create booking",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get booking by ID
+  async getBookingById(req, res) {
+console.log('booking.controller.js / req.params.bookingId / 89 -------------------  ', req.params.bookingId);
+    try {
+      // Validate booking ID
+      const { error, value } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid booking ID",
+          error: error.details[0].message,
         });
       }
 
@@ -78,14 +104,14 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        data: booking
+        data: booking,
       });
     } catch (error) {
-      console.error('Error getting booking:', error);
+      console.error("Error getting booking:", error);
       res.status(404).json({
         success: false,
-        message: 'Booking not found',
-        error: error.message
+        message: "Booking not found",
+        error: error.message,
       });
     }
   }
@@ -94,50 +120,57 @@ async createBooking(req, res) {
   async getBookingByBookingId(req, res) {
     try {
       // Validate booking ID
-      const { error, value } = customBookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error, value } = customBookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (error) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: error.details[0].message
+          message: "Invalid booking ID",
+          error: error.details[0].message,
         });
       }
 
-      const booking = await bookingService.getBookingByBookingId(value.bookingId);
+      const booking = await bookingService.getBookingByBookingId(
+        value.bookingId
+      );
 
       res.status(200).json({
         success: true,
-        data: booking
+        data: booking,
       });
     } catch (error) {
-      console.error('Error getting booking:', error);
+      console.error("Error getting booking:", error);
       res.status(404).json({
         success: false,
-        message: 'Booking not found',
-        error: error.message
+        message: "Booking not found",
+        error: error.message,
       });
     }
   }
 
   // Get all bookings (admin)
   async getAllBookings(req, res) {
+console.log('booking.controller.js -------------------------- >  152  ',res);
     try {
       // Validate query parameters
-      const { error: filterError, value: filters } = bookingFiltersValidation.validate(req.query);
+      const { error: filterError, value: filters } =
+        bookingFiltersValidation.validate(req.query);
       if (filterError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid filter parameters',
-          errors: filterError.details.map(detail => detail.message)
+          message: "Invalid filter parameters",
+          errors: filterError.details.map((detail) => detail.message),
         });
       }
 
-      const { error: paginationError, value: pagination } = paginationValidation.validate(req.query);
+      const { error: paginationError, value: pagination } =
+        paginationValidation.validate(req.query);
       if (paginationError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid pagination parameters',
-          errors: paginationError.details.map(detail => detail.message)
+          message: "Invalid pagination parameters",
+          errors: paginationError.details.map((detail) => detail.message),
         });
       }
 
@@ -146,14 +179,14 @@ async createBooking(req, res) {
       res.status(200).json({
         success: true,
         data: result.bookings,
-        pagination: result.pagination
+        pagination: result.pagination,
       });
     } catch (error) {
-      console.error('Error getting bookings:', error);
+      console.error("Error getting bookings:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch bookings',
-        error: error.message
+        message: "Failed to fetch bookings",
+        error: error.message,
       });
     }
   }
@@ -161,37 +194,42 @@ async createBooking(req, res) {
   // Get user's bookings
   async getUserBookings(req, res) {
     try {
-      const { error: filterError, value: filters } = bookingFiltersValidation.validate(req.query);
+      const { error: filterError, value: filters } =
+        bookingFiltersValidation.validate(req.query);
       if (filterError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid filter parameters',
-          errors: filterError.details.map(detail => detail.message)
+          message: "Invalid filter parameters",
+          errors: filterError.details.map((detail) => detail.message),
         });
       }
 
-      const { error: paginationError, value: pagination } = paginationValidation.validate(req.query);
+      const { error: paginationError, value: pagination } =
+        paginationValidation.validate(req.query);
       if (paginationError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid pagination parameters',
-          errors: paginationError.details.map(detail => detail.message)
+          message: "Invalid pagination parameters",
+          errors: paginationError.details.map((detail) => detail.message),
         });
       }
 
-      const result = await bookingService.getUserBookings(req.user.id, { ...filters, ...pagination });
+      const result = await bookingService.getUserBookings(req.user.id, {
+        ...filters,
+        ...pagination,
+      });
 
       res.status(200).json({
         success: true,
         data: result.bookings,
-        pagination: result.pagination
+        pagination: result.pagination,
       });
     } catch (error) {
-      console.error('Error getting user bookings:', error);
+      console.error("Error getting user bookings:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch user bookings',
-        error: error.message
+        message: "Failed to fetch user bookings",
+        error: error.message,
       });
     }
   }
@@ -200,22 +238,26 @@ async createBooking(req, res) {
   async updateBookingStatus(req, res) {
     try {
       // Validate booking ID
-      const { error: idError, value: idValue } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error: idError, value: idValue } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (idError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: idError.details[0].message
+          message: "Invalid booking ID",
+          error: idError.details[0].message,
         });
       }
 
       // Validate request body
-      const { error: bodyError, value } = updateStatusValidation.validate(req.body);
+      const { error: bodyError, value } = updateStatusValidation.validate(
+        req.body
+      );
       if (bodyError) {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
-          errors: bodyError.details.map(detail => detail.message)
+          message: "Validation error",
+          errors: bodyError.details.map((detail) => detail.message),
         });
       }
 
@@ -228,15 +270,15 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        message: 'Booking status updated successfully',
-        data: booking
+        message: "Booking status updated successfully",
+        data: booking,
       });
     } catch (error) {
-      console.error('Error updating booking status:', error);
+      console.error("Error updating booking status:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update booking status',
-        error: error.message
+        message: "Failed to update booking status",
+        error: error.message,
       });
     }
   }
@@ -245,38 +287,47 @@ async createBooking(req, res) {
   async confirmBooking(req, res) {
     try {
       // Validate booking ID
-      const { error: idError, value: idValue } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error: idError, value: idValue } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (idError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: idError.details[0].message
+          message: "Invalid booking ID",
+          error: idError.details[0].message,
         });
       }
 
       // Validate request body
-      const { error: bodyError, value } = confirmBookingValidation.validate(req.body);
+      const { error: bodyError, value } = confirmBookingValidation.validate(
+        req.body
+      );
       if (bodyError) {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
-          errors: bodyError.details.map(detail => detail.message)
+          message: "Validation error",
+          errors: bodyError.details.map((detail) => detail.message),
         });
       }
 
-      const booking = await bookingService.confirmBooking(idValue.bookingId, req.user.id, value.admin_notes);
+      const booking = await bookingService.confirmBooking(
+        idValue.bookingId,
+        req.user.id,
+        value.admin_notes
+      );
 
       res.status(200).json({
         success: true,
-        message: 'Booking confirmed successfully. Confirmation email sent to customer.',
-        data: booking
+        message:
+          "Booking confirmed successfully. Confirmation email sent to customer.",
+        data: booking,
       });
     } catch (error) {
-      console.error('Error confirming booking:', error);
+      console.error("Error confirming booking:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to confirm booking',
-        error: error.message
+        message: "Failed to confirm booking",
+        error: error.message,
       });
     }
   }
@@ -285,38 +336,47 @@ async createBooking(req, res) {
   async cancelBooking(req, res) {
     try {
       // Validate booking ID
-      const { error: idError, value: idValue } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error: idError, value: idValue } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (idError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: idError.details[0].message
+          message: "Invalid booking ID",
+          error: idError.details[0].message,
         });
       }
 
       // Validate request body
-      const { error: bodyError, value } = cancelBookingValidation.validate(req.body);
+      const { error: bodyError, value } = cancelBookingValidation.validate(
+        req.body
+      );
       if (bodyError) {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
-          errors: bodyError.details.map(detail => detail.message)
+          message: "Validation error",
+          errors: bodyError.details.map((detail) => detail.message),
         });
       }
 
-      const booking = await bookingService.cancelBooking(idValue.bookingId, req.user.id, value.reason);
+      const booking = await bookingService.cancelBooking(
+        idValue.bookingId,
+        req.user.id,
+        value.reason
+      );
 
       res.status(200).json({
         success: true,
-        message: 'Booking cancelled successfully. Cancellation email sent to customer.',
-        data: booking
+        message:
+          "Booking cancelled successfully. Cancellation email sent to customer.",
+        data: booking,
       });
     } catch (error) {
-      console.error('Error cancelling booking:', error);
+      console.error("Error cancelling booking:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to cancel booking',
-        error: error.message
+        message: "Failed to cancel booking",
+        error: error.message,
       });
     }
   }
@@ -325,22 +385,26 @@ async createBooking(req, res) {
   async updatePaymentStatus(req, res) {
     try {
       // Validate booking ID
-      const { error: idError, value: idValue } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error: idError, value: idValue } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (idError) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: idError.details[0].message
+          message: "Invalid booking ID",
+          error: idError.details[0].message,
         });
       }
 
       // Validate request body
-      const { error: bodyError, value } = updatePaymentValidation.validate(req.body);
+      const { error: bodyError, value } = updatePaymentValidation.validate(
+        req.body
+      );
       if (bodyError) {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
-          errors: bodyError.details.map(detail => detail.message)
+          message: "Validation error",
+          errors: bodyError.details.map((detail) => detail.message),
         });
       }
 
@@ -353,15 +417,15 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        message: 'Payment status updated successfully',
-        data: booking
+        message: "Payment status updated successfully",
+        data: booking,
       });
     } catch (error) {
-      console.error('Error updating payment status:', error);
+      console.error("Error updating payment status:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update payment status',
-        error: error.message
+        message: "Failed to update payment status",
+        error: error.message,
       });
     }
   }
@@ -373,14 +437,14 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        data: stats
+        data: stats,
       });
     } catch (error) {
-      console.error('Error getting booking statistics:', error);
+      console.error("Error getting booking statistics:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch booking statistics',
-        error: error.message
+        message: "Failed to fetch booking statistics",
+        error: error.message,
       });
     }
   }
@@ -392,14 +456,14 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        data: bookings
+        data: bookings,
       });
     } catch (error) {
-      console.error('Error getting upcoming bookings:', error);
+      console.error("Error getting upcoming bookings:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch upcoming bookings',
-        error: error.message
+        message: "Failed to fetch upcoming bookings",
+        error: error.message,
       });
     }
   }
@@ -411,14 +475,14 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        data: bookings
+        data: bookings,
       });
     } catch (error) {
-      console.error('Error getting overdue bookings:', error);
+      console.error("Error getting overdue bookings:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch overdue bookings',
-        error: error.message
+        message: "Failed to fetch overdue bookings",
+        error: error.message,
       });
     }
   }
@@ -431,11 +495,15 @@ async createBooking(req, res) {
       if (!carId || !pickupDate || !returnDate) {
         return res.status(400).json({
           success: false,
-          message: 'Car ID, pickup date, and return date are required'
+          message: "Car ID, pickup date, and return date are required",
         });
       }
 
-      const isAvailable = await bookingService.checkCarAvailability(carId, pickupDate, returnDate);
+      const isAvailable = await bookingService.checkCarAvailability(
+        carId,
+        pickupDate,
+        returnDate
+      );
 
       res.status(200).json({
         success: true,
@@ -443,15 +511,15 @@ async createBooking(req, res) {
           car_id: carId,
           pickup_date: pickupDate,
           return_date: returnDate,
-          is_available: isAvailable
-        }
+          is_available: isAvailable,
+        },
       });
     } catch (error) {
-      console.error('Error checking car availability:', error);
+      console.error("Error checking car availability:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to check car availability',
-        error: error.message
+        message: "Failed to check car availability",
+        error: error.message,
       });
     }
   }
@@ -460,12 +528,14 @@ async createBooking(req, res) {
   async deleteBooking(req, res) {
     try {
       // Validate booking ID
-      const { error, value } = bookingIdValidation.validate({ bookingId: req.params.bookingId });
+      const { error, value } = bookingIdValidation.validate({
+        bookingId: req.params.bookingId,
+      });
       if (error) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid booking ID',
-          error: error.details[0].message
+          message: "Invalid booking ID",
+          error: error.details[0].message,
         });
       }
 
@@ -473,14 +543,14 @@ async createBooking(req, res) {
 
       res.status(200).json({
         success: true,
-        message: result.message
+        message: result.message,
       });
     } catch (error) {
-      console.error('Error deleting booking:', error);
+      console.error("Error deleting booking:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete booking',
-        error: error.message
+        message: "Failed to delete booking",
+        error: error.message,
       });
     }
   }

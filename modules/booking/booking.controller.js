@@ -86,7 +86,6 @@ class BookingController {
 
   // Get booking by ID
   async getBookingById(req, res) {
-console.log('booking.controller.js / req.params.bookingId / 89 -------------------  ', req.params.bookingId);
     try {
       // Validate booking ID
       const { error, value } = bookingIdValidation.validate({
@@ -151,7 +150,6 @@ console.log('booking.controller.js / req.params.bookingId / 89 -----------------
 
   // Get all bookings (admin)
   async getAllBookings(req, res) {
-console.log('booking.controller.js -------------------------- >  152  ',res);
     try {
       // Validate query parameters
       const { error: filterError, value: filters } =

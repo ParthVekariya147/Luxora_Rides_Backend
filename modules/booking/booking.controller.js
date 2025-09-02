@@ -17,7 +17,7 @@ class BookingController {
   async createBooking(req, res) {
     try {
       // Validate request body (without user_id)
-      const { error, value } = createBookingValidation.validate(req.body)
+      const { error, value } = createBookingValidation.validate(req.body);
 
       if (error) {
         return res.status(400).json({
@@ -548,6 +548,46 @@ class BookingController {
       res.status(500).json({
         success: false,
         message: "Failed to delete booking",
+        error: error.message,
+      });
+    }
+  }
+
+  async editBookingDetails(req, res) {
+    try {
+      const { bookingId } = req.params;
+      const updateData = req.body;
+
+      if ("booking_id" in updateData) delete updateData.booking_id;
+      updateData.updated_at = new Date();
+
+      // Get booking document
+      const booking = await bookingService.getBookingByBookingId(bookingId);
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found",
+        });
+      }
+
+      // Assign updated fields
+      Object.keys(updateData).forEach((field) => {
+        booking[field] = updateData[field];
+      });
+
+      // Save updated booking
+      const updatedBooking = await bookingService.saveBooking(booking);
+
+      res.status(200).json({
+        success: true,
+        message: "Booking updated successfully",
+        data: updatedBooking,
+      });
+    } catch (error) {
+      console.error("Error editing booking:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to edit booking",
         error: error.message,
       });
     }

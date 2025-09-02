@@ -3,11 +3,13 @@
 This document provides comprehensive information about the Booking API endpoints for the Luxora backend. The booking system allows users to book cars and admins to manage bookings with automatic email notifications.
 
 ## Base URL
+
 ```
 http://localhost:3000/api
 ```
 
 ## Authentication
+
 - **Public endpoints**: No authentication required
 - **Protected endpoints**: Require Bearer token in Authorization header
 - **Admin endpoints**: Require admin authentication
@@ -15,12 +17,14 @@ http://localhost:3000/api
 ## Email Flow Overview
 
 ### 1. New Booking Flow
+
 1. **User creates booking** → Admin receives notification email
 2. **Admin confirms booking** → User receives confirmation email
 3. **Admin updates status** → User receives status update email
 4. **Admin cancels booking** → User receives cancellation email
 
 ### 2. Email Templates
+
 - **Admin Notification**: New booking request details
 - **User Confirmation**: Booking confirmed with all details
 - **Status Updates**: Booking status changes with admin notes
@@ -29,16 +33,19 @@ http://localhost:3000/api
 ## API Endpoints
 
 ### 1. Check Car Availability (Public)
+
 **GET** `/availability`
 
 Check if a car is available for the selected dates.
 
 **Query Parameters:**
+
 - `carId` (string): Car ID
 - `pickupDate` (string): Pickup date (YYYY-MM-DD)
 - `returnDate` (string): Return date (YYYY-MM-DD)
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -52,11 +59,13 @@ Check if a car is available for the selected dates.
 ```
 
 ### 2. Create Booking (User)
+
 **POST** `/bookings`
 
 Create a new car booking. Requires user authentication.
 
 **Request Body:**
+
 ```json
 {
   "car_id": "64f8a1b2c3d4e5f6a7b8c9d0",
@@ -84,6 +93,7 @@ Create a new car booking. Requires user authentication.
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -102,11 +112,13 @@ Create a new car booking. Requires user authentication.
 **Email Sent:** Admin notification email
 
 ### 3. Get All Bookings (Admin)
+
 **GET** `/bookings`
 
 Get all bookings with filtering and pagination. Admin authentication required.
 
 **Query Parameters:**
+
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10, max: 100)
 - `status` (string): Filter by status
@@ -120,6 +132,7 @@ Get all bookings with filtering and pagination. Admin authentication required.
 - `sortOrder` (string): Sort order (asc, desc, default: desc)
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -159,16 +172,19 @@ Get all bookings with filtering and pagination. Admin authentication required.
 ```
 
 ### 4. Get User's Bookings (User)
+
 **GET** `/bookings/my-bookings`
 
 Get all bookings for the authenticated user.
 
 **Query Parameters:**
+
 - `status` (string): Filter by status
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10)
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -199,11 +215,13 @@ Get all bookings for the authenticated user.
 ```
 
 ### 5. Get Booking by ID (Admin)
+
 **GET** `/bookings/:bookingId`
 
 Get a specific booking by ID. Admin authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -258,11 +276,13 @@ Get a specific booking by ID. Admin authentication required.
 ```
 
 ### 6. Get Booking by Custom ID (User)
+
 **GET** `/bookings/booking/:bookingId`
 
 Get a booking by custom booking ID (starts with BK). User authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -283,11 +303,13 @@ Get a booking by custom booking ID (starts with BK). User authentication require
 ```
 
 ### 7. Confirm Booking (Admin)
+
 **POST** `/bookings/:bookingId/confirm`
 
 Confirm a booking and send confirmation email to user. Admin authentication required.
 
 **Request Body:**
+
 ```json
 {
   "admin_notes": "Booking confirmed. Please arrive 15 minutes before pickup time."
@@ -295,6 +317,7 @@ Confirm a booking and send confirmation email to user. Admin authentication requ
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -311,11 +334,13 @@ Confirm a booking and send confirmation email to user. Admin authentication requ
 **Email Sent:** User confirmation email
 
 ### 8. Update Booking Status (Admin)
+
 **PUT** `/bookings/:bookingId/status`
 
 Update booking status. Admin authentication required.
 
 **Request Body:**
+
 ```json
 {
   "status": "in_progress",
@@ -324,6 +349,7 @@ Update booking status. Admin authentication required.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -340,11 +366,13 @@ Update booking status. Admin authentication required.
 **Email Sent:** Status update email (if status changed)
 
 ### 9. Cancel Booking (Admin)
+
 **POST** `/bookings/:bookingId/cancel`
 
 Cancel a booking and send cancellation email to user. Admin authentication required.
 
 **Request Body:**
+
 ```json
 {
   "reason": "Vehicle unavailable due to maintenance."
@@ -352,6 +380,7 @@ Cancel a booking and send cancellation email to user. Admin authentication requi
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -368,11 +397,13 @@ Cancel a booking and send cancellation email to user. Admin authentication requi
 **Email Sent:** Cancellation email
 
 ### 10. Update Payment Status (Admin)
+
 **PUT** `/bookings/:bookingId/payment`
 
 Update payment status. Admin authentication required.
 
 **Request Body:**
+
 ```json
 {
   "payment_status": "completed",
@@ -382,6 +413,7 @@ Update payment status. Admin authentication required.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -396,11 +428,13 @@ Update payment status. Admin authentication required.
 ```
 
 ### 11. Get Booking Statistics (Admin)
+
 **GET** `/bookings/stats/statistics`
 
 Get comprehensive booking statistics. Admin authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -438,11 +472,13 @@ Get comprehensive booking statistics. Admin authentication required.
 ```
 
 ### 12. Get Upcoming Bookings (Admin)
+
 **GET** `/bookings/upcoming`
 
 Get upcoming bookings. Admin authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -468,11 +504,13 @@ Get upcoming bookings. Admin authentication required.
 ```
 
 ### 13. Get Overdue Bookings (Admin)
+
 **GET** `/bookings/overdue`
 
 Get overdue bookings. Admin authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -498,11 +536,13 @@ Get overdue bookings. Admin authentication required.
 ```
 
 ### 14. Delete Booking (Admin)
+
 **DELETE** `/bookings/:bookingId`
 
 Delete a booking. Admin authentication required.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -530,18 +570,22 @@ Delete a booking. Admin authentication required.
 ## Email Templates
 
 ### 1. Admin Notification Email
+
 **Subject:** `New Booking Request - BMW X5 | Luxora`
 
 **Content:**
+
 - Booking details (ID, vehicle, dates, locations)
 - Customer information (name, email, phone)
 - Rental details (pickup/return dates, total amount)
 - Action buttons (Review Booking, View All Bookings)
 
 ### 2. User Confirmation Email
+
 **Subject:** `Booking Confirmed - BMW X5 | Luxora`
 
 **Content:**
+
 - Confirmation message with booking details
 - Vehicle information with image
 - Pickup and return details
@@ -550,18 +594,22 @@ Delete a booking. Admin authentication required.
 - Action buttons (View Booking Details, Contact Support)
 
 ### 3. Status Update Email
+
 **Subject:** `Booking In Progress - BMW X5 | Luxora`
 
 **Content:**
+
 - Status update with color-coded indicators
 - Booking information
 - Admin message/notes
 - Action buttons (View Booking Details, Contact Support)
 
 ### 4. Cancellation Email
+
 **Subject:** `Booking Cancelled - BMW X5 | Luxora`
 
 **Content:**
+
 - Cancellation notification
 - Cancellation reason
 - Booking information
@@ -571,39 +619,42 @@ Delete a booking. Admin authentication required.
 ## Frontend Integration Examples
 
 ### React/JavaScript Example
+
 ```javascript
 // Create booking
 const createBooking = async (bookingData) => {
   try {
-    const response = await fetch('/api/bookings', {
-      method: 'POST',
+    const response = await fetch("/api/bookings", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(bookingData)
+      body: JSON.stringify(bookingData),
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
-      alert('Booking created successfully! Check your email for updates.');
+      alert("Booking created successfully! Check your email for updates.");
     } else {
-      alert('Error: ' + result.message);
+      alert("Error: " + result.message);
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 };
 
 // Check car availability
 const checkAvailability = async (carId, pickupDate, returnDate) => {
   try {
-    const response = await fetch(`/api/availability?carId=${carId}&pickupDate=${pickupDate}&returnDate=${returnDate}`);
+    const response = await fetch(
+      `/api/availability?carId=${carId}&pickupDate=${pickupDate}&returnDate=${returnDate}`
+    );
     const result = await response.json();
     return result.data.is_available;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     return false;
   }
 };
@@ -611,34 +662,45 @@ const checkAvailability = async (carId, pickupDate, returnDate) => {
 // Get user bookings
 const getUserBookings = async (token) => {
   try {
-    const response = await fetch('/api/bookings/my-bookings', {
+    const response = await fetch("/api/bookings/my-bookings", {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
-    
+
     const result = await response.json();
     return result.data;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 };
 ```
 
 ### HTML Form Example
+
 ```html
 <form id="bookingForm">
   <select name="car_id" required>
     <option value="">Select Car</option>
     <option value="64f8a1b2c3d4e5f6a7b8c9d0">BMW X5 - ₹3000/day</option>
   </select>
-  
-  <input type="date" name="pickup_date" required>
-  <input type="date" name="return_date" required>
-  
-  <input type="text" name="pickup_location" placeholder="Pickup Location" required>
-  <input type="text" name="return_location" placeholder="Return Location" required>
-  
+
+  <input type="date" name="pickup_date" required />
+  <input type="date" name="return_date" required />
+
+  <input
+    type="text"
+    name="pickup_location"
+    placeholder="Pickup Location"
+    required
+  />
+  <input
+    type="text"
+    name="return_location"
+    placeholder="Return Location"
+    required
+  />
+
   <select name="payment_method" required>
     <option value="">Select Payment Method</option>
     <option value="credit_card">Credit Card</option>
@@ -648,25 +710,28 @@ const getUserBookings = async (token) => {
     <option value="cash">Cash</option>
     <option value="wallet">Wallet</option>
   </select>
-  
+
   <button type="submit">Book Now</button>
 </form>
 
 <script>
-document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const bookingData = Object.fromEntries(formData);
-  
-  await createBooking(bookingData);
-});
+  document
+    .getElementById("bookingForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const bookingData = Object.fromEntries(formData);
+
+      await createBooking(bookingData);
+    });
 </script>
 ```
 
 ## Features Summary
 
 ### For Users
+
 - ✅ Create car bookings with detailed information
 - ✅ Check car availability for specific dates
 - ✅ View booking history and status
@@ -674,6 +739,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
 - ✅ Track booking by custom booking ID
 
 ### For Admins
+
 - ✅ View all bookings with advanced filtering and pagination
 - ✅ Confirm bookings with automatic email notifications
 - ✅ Update booking status with email updates
@@ -684,6 +750,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
 - ✅ Delete unwanted bookings
 
 ### Technical Features
+
 - ✅ Comprehensive validation with detailed error messages
 - ✅ Automatic pricing calculation with tax
 - ✅ Car availability checking

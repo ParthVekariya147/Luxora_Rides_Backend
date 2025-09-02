@@ -25,5 +25,6 @@ router.get('/stats/statistics', bookingController.getBookingStatistics);
 router.get('/upcoming', bookingController.getUpcomingBookings);
 router.get('/overdue', bookingController.getOverdueBookings);
 router.delete('/:bookingId', bookingController.deleteBooking);
+router.put('/:bookingId/edit', bookingController.editBookingDetails);
 
 module.exports = router;

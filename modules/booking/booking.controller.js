@@ -1,4 +1,5 @@
 const bookingService = require("./booking.service");
+const carService = require("../car/car.service");
 const {
   createBookingValidation,
   updateStatusValidation,
@@ -308,11 +309,17 @@ class BookingController {
         });
       }
 
+      // Confirm booking
       const booking = await bookingService.confirmBooking(
         idValue.bookingId,
         req.user.id,
         value.admin_notes
       );
+
+      // Car status update
+      if (booking && booking.car_id) {
+        await carService.updateCarStatus(booking.car_id, "rented");
+      }
 
       res.status(200).json({
         success: true,

@@ -1,11 +1,11 @@
-const Booking = require('./booking.model');
-const Car = require('../car/car.model');
-const User = require('../user/user.model');
+const Booking = require("./booking.model");
+const Car = require("../car/car.model");
+const User = require("../user/user.model");
 const {
   sendBookingConfirmationEmail,
   sendBookingStatusUpdateEmail,
-  sendAdminBookingNotification
-} = require('../../utils/sendEmail');
+  sendAdminBookingNotification,
+} = require("../../utils/sendEmail");
 
 class BookingService {
   // Create a new booking
@@ -19,20 +19,22 @@ class BookingService {
       );
 
       if (!isCarAvailable) {
-        throw new Error('Car is not available for the selected dates');
+        throw new Error("Car is not available for the selected dates");
       }
 
       // Get car details for pricing
       const car = await Car.findById(bookingData.car_id);
       if (!car) {
-        throw new Error('Car not found');
+        throw new Error("Car not found");
       }
 
       // Calculate total days
       const pickupDate = new Date(bookingData.pickup_date);
       const returnDate = new Date(bookingData.return_date);
 
-      let totalDays = Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24));
+      let totalDays = Math.ceil(
+        (returnDate - pickupDate) / (1000 * 60 * 60 * 24)
+      );
       if (totalDays <= 0) {
         totalDays = 1; // Minimum 1 day rent charge
       }
@@ -46,7 +48,7 @@ class BookingService {
         ...bookingData,
         daily_rate: dailyRate,
         total_days: totalDays,
-        total_amount: totalAmount
+        total_amount: totalAmount,
         // Removed subtotal, tax_amount, security_deposit as per simplified model
       });
 
@@ -65,12 +67,11 @@ class BookingService {
   async getBookingById(bookingId) {
     try {
       const booking = await Booking.findById(bookingId)
-        .populate('user_id', 'name email phone')
-        .populate('car_id')
-      
+        .populate("user_id", "name email phone")
+        .populate("car_id");
 
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
       return booking;
@@ -83,12 +84,12 @@ class BookingService {
   async getBookingByBookingId(bookingId) {
     try {
       const booking = await Booking.findOne({ booking_id: bookingId })
-        .populate('user_id', 'name email phone')
-        .populate('car_id')
-        .populate('admin_id', 'name email');
+        .populate("user_id", "name email phone")
+        .populate("car_id")
+        .populate("admin_id", "name email");
 
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
       return booking;
@@ -100,8 +101,21 @@ class BookingService {
   // Get all bookings with filtering and pagination
   async getAllBookings(filters = {}, pagination = {}) {
     try {
-      const { page = 1, limit = 10, sortBy = 'created_at', sortOrder = 'desc' } = pagination;
-      const { status, payment_status, user_id, car_id, date_from, date_to, search } = filters;
+      const {
+        page = 1,
+        limit = 50,
+        sortBy = "created_at",
+        sortOrder = "desc",
+      } = pagination;
+      const {
+        status,
+        payment_status,
+        user_id,
+        car_id,
+        date_from,
+        date_to,
+        search,
+      } = filters;
 
       const query = {};
 
@@ -118,21 +132,21 @@ class BookingService {
 
       if (search) {
         query.$or = [
-          { booking_id: { $regex: search, $options: 'i' } },
-          { pickup_location: { $regex: search, $options: 'i' } },
-          { return_location: { $regex: search, $options: 'i' } }
+          { booking_id: { $regex: search, $options: "i" } },
+          { pickup_location: { $regex: search, $options: "i" } },
+          { return_location: { $regex: search, $options: "i" } },
         ];
       }
 
       const sort = {};
-      sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+      sort[sortBy] = sortOrder === "desc" ? -1 : 1;
 
       const skip = (page - 1) * limit;
 
       const bookings = await Booking.find(query)
-        .populate('user_id', 'name email phone')
-        .populate('car_id', 'car_name brand image_url')
-    
+        .populate("user_id", "name email phone")
+        .populate("car_id", "car_name brand image_url")
+
         .sort(sort)
         .skip(skip)
         .limit(limit);
@@ -145,8 +159,8 @@ class BookingService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       throw error;
@@ -156,7 +170,7 @@ class BookingService {
   // Get user's bookings
   async getUserBookings(userId, filters = {}) {
     try {
-      const { status, page = 1, limit = 10 } = filters;
+      const { status, page = 1, limit = 50 } = filters;
 
       const query = { user_id: userId };
       if (status) query.status = status;
@@ -164,10 +178,10 @@ class BookingService {
       const skip = (page - 1) * limit;
 
       const bookings = await Booking.find(query)
-        .populate('car_id', 'car_name brand image_url daily_rate')
+        .populate("car_id", "car_name brand image_url daily_rate")
         .sort({ created_at: -1 })
         .skip(skip)
-        .limit(limit);
+        .limit(50);
 
       const total = await Booking.countDocuments(query);
 
@@ -177,8 +191,8 @@ class BookingService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       throw error;
@@ -186,14 +200,14 @@ class BookingService {
   }
 
   // Update booking status (admin action)
-  async updateBookingStatus(bookingId, status, adminId, notes = '') {
+  async updateBookingStatus(bookingId, status, adminId, notes = "") {
     try {
       const booking = await Booking.findById(bookingId)
-        .populate('user_id', 'name email phone')
-        .populate('car_id', 'car_name brand image_url');
+        .populate("user_id", "name email phone")
+        .populate("car_id", "car_name brand image_url");
 
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
       const oldStatus = booking.status;
@@ -202,9 +216,9 @@ class BookingService {
       booking.admin_notes = notes;
 
       // Set timestamps based on status
-      if (status === 'confirmed') {
+      if (status === "confirmed") {
         booking.confirmed_at = new Date();
-      } else if (status === 'cancelled') {
+      } else if (status === "cancelled") {
         booking.cancelled_at = new Date();
       }
 
@@ -222,9 +236,14 @@ class BookingService {
   }
 
   // Confirm booking (admin action)
-  async confirmBooking(bookingId, adminId, notes = '') {
+  async confirmBooking(bookingId, adminId, notes = "") {
     try {
-      const booking = await this.updateBookingStatus(bookingId, 'confirmed', adminId, notes);
+      const booking = await this.updateBookingStatus(
+        bookingId,
+        "confirmed",
+        adminId,
+        notes
+      );
 
       // Send confirmation email
       await this.sendConfirmationEmail(booking);
@@ -236,14 +255,14 @@ class BookingService {
   }
 
   // Cancel booking
-  async cancelBooking(bookingId, adminId, reason = '') {
+  async cancelBooking(bookingId, adminId, reason = "") {
     try {
       const booking = await Booking.findById(bookingId);
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
-      booking.status = 'cancelled';
+      booking.status = "cancelled";
       booking.admin_id = adminId;
       booking.cancelled_reason = reason;
       booking.cancelled_at = new Date();
@@ -260,11 +279,16 @@ class BookingService {
   }
 
   // Update payment status
-  async updatePaymentStatus(bookingId, paymentStatus, paymentId = null, transactionId = null) {
+  async updatePaymentStatus(
+    bookingId,
+    paymentStatus,
+    paymentId = null,
+    transactionId = null
+  ) {
     try {
       const booking = await Booking.findById(bookingId);
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
       booking.payment_status = paymentStatus;
@@ -284,13 +308,13 @@ class BookingService {
     try {
       const conflictingBookings = await Booking.find({
         car_id: carId,
-        status: { $in: ['pending', 'confirmed', 'in_progress'] },
+        status: { $in: ["pending", "confirmed", "in_progress"] },
         $or: [
           {
             pickup_date: { $lte: new Date(returnDate) },
-            return_date: { $gte: new Date(pickupDate) }
-          }
-        ]
+            return_date: { $gte: new Date(pickupDate) },
+          },
+        ],
       });
 
       return conflictingBookings.length === 0;
@@ -307,41 +331,63 @@ class BookingService {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-            confirmed: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } },
-            in_progress: { $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] } },
-            completed: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
-            cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
+            pending: {
+              $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+            },
+            confirmed: {
+              $sum: { $cond: [{ $eq: ["$status", "confirmed"] }, 1, 0] },
+            },
+            in_progress: {
+              $sum: { $cond: [{ $eq: ["$status", "in_progress"] }, 1, 0] },
+            },
+            completed: {
+              $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+            },
+            cancelled: {
+              $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
+            },
             total_revenue: {
-              $sum: { $cond: [{ $eq: ['$payment_status', 'completed'] }, '$total_amount', 0] }
-            }
-          }
-        }
+              $sum: {
+                $cond: [
+                  { $eq: ["$payment_status", "completed"] },
+                  "$total_amount",
+                  0,
+                ],
+              },
+            },
+          },
+        },
       ]);
 
       const monthlyStats = await Booking.aggregate([
         {
           $group: {
             _id: {
-              year: { $year: '$created_at' },
-              month: { $month: '$created_at' }
+              year: { $year: "$created_at" },
+              month: { $month: "$created_at" },
             },
             count: { $sum: 1 },
             revenue: {
-              $sum: { $cond: [{ $eq: ['$payment_status', 'completed'] }, '$total_amount', 0] }
-            }
-          }
+              $sum: {
+                $cond: [
+                  { $eq: ["$payment_status", "completed"] },
+                  "$total_amount",
+                  0,
+                ],
+              },
+            },
+          },
         },
-        { $sort: { '_id.year': -1, '_id.month': -1 } },
-        { $limit: 12 }
+        { $sort: { "_id.year": -1, "_id.month": -1 } },
+        { $limit: 12 },
       ]);
 
       const recentBookings = await Booking.find()
-        .populate('user_id', 'name email')
-        .populate('car_id', 'car_name brand')
+        .populate("user_id", "name email")
+        .populate("car_id", "car_name brand")
         .sort({ created_at: -1 })
         .limit(5)
-        .select('booking_id status total_amount created_at');
+        .select("booking_id status total_amount created_at");
 
       return {
         overview: stats[0] || {
@@ -351,10 +397,10 @@ class BookingService {
           in_progress: 0,
           completed: 0,
           cancelled: 0,
-          total_revenue: 0
+          total_revenue: 0,
         },
         monthlyStats,
-        recentBookings
+        recentBookings,
       };
     } catch (error) {
       throw error;
@@ -378,14 +424,14 @@ class BookingService {
         returnLocation: booking.return_location,
         totalAmount: booking.total_amount,
         bookingId: booking.booking_id,
-        carImage: car.image_url
+        carImage: car.image_url,
       };
 
       await sendBookingConfirmationEmail(emailData);
 
       // Removed email_sent confirmation update per simplified model
     } catch (error) {
-      console.error('Error sending confirmation email:', error);
+      console.error("Error sending confirmation email:", error);
     }
   }
 
@@ -404,12 +450,12 @@ class BookingService {
         bookingId: booking.booking_id,
         status: booking.status,
         message: booking.admin_notes,
-        adminName: admin ? admin.name : 'Luxora Team'
+        adminName: admin ? admin.name : "Luxora Team",
       };
 
       await sendBookingStatusUpdateEmail(emailData);
     } catch (error) {
-      console.error('Error sending status update email:', error);
+      console.error("Error sending status update email:", error);
     }
   }
 
@@ -430,12 +476,12 @@ class BookingService {
         pickupLocation: booking.pickup_location,
         returnLocation: booking.return_location,
         totalAmount: booking.total_amount,
-        bookingId: booking.booking_id
+        bookingId: booking.booking_id,
       };
 
       await sendAdminBookingNotification(emailData);
     } catch (error) {
-      console.error('Error sending admin notification:', error);
+      console.error("Error sending admin notification:", error);
     }
   }
 
@@ -445,10 +491,10 @@ class BookingService {
       const booking = await Booking.findByIdAndDelete(bookingId);
 
       if (!booking) {
-        throw new Error('Booking not found');
+        throw new Error("Booking not found");
       }
 
-      return { message: 'Booking deleted successfully' };
+      return { message: "Booking deleted successfully" };
     } catch (error) {
       throw error;
     }
@@ -460,10 +506,10 @@ class BookingService {
       const today = new Date();
       const bookings = await Booking.find({
         pickup_date: { $gte: today },
-        status: { $in: ['confirmed', 'in_progress'] }
+        status: { $in: ["confirmed", "in_progress"] },
       })
-        .populate('user_id', 'name email phone')
-        .populate('car_id', 'car_name brand image_url')
+        .populate("user_id", "name email phone")
+        .populate("car_id", "car_name brand image_url")
         .sort({ pickup_date: 1 })
         .limit(10);
 
@@ -479,10 +525,10 @@ class BookingService {
       const today = new Date();
       const bookings = await Booking.find({
         return_date: { $lt: today },
-        status: { $in: ['confirmed', 'in_progress'] }
+        status: { $in: ["confirmed", "in_progress"] },
       })
-        .populate('user_id', 'name email phone')
-        .populate('car_id', 'car_name brand image_url')
+        .populate("user_id", "name email phone")
+        .populate("car_id", "car_name brand image_url")
         .sort({ return_date: 1 });
 
       return bookings;

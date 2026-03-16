@@ -74,7 +74,4 @@ const vehicleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-vehicleSchema.index({ licensePlate: 1 });
-vehicleSchema.index({ vin: 1 });
-
 module.exports = mongoose.model('Vehicle', vehicleSchema);

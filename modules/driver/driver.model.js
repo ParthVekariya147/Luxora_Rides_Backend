@@ -19,7 +19,6 @@ const driverSchema = new mongoose.Schema(
 );
 
 driverSchema.index({ firstName: 1, lastName: 1, phone: 1, email: 1 });
-driverSchema.index({ licenseNumber: 1 });
 driverSchema.index({ status: 1, isActive: 1 });
 
 module.exports = mongoose.model('Driver', driverSchema);
